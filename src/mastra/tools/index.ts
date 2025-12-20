@@ -16,6 +16,7 @@ const getTavilyClient = () => {
 };
 
 export const tavilyExtract = createTool({
+// ... (rest of the file)
   id: "Tavily Extract",
   description:
     "Extract content from a list of URLs using Tavily's extraction API.",
