@@ -4,12 +4,10 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, system } = await req.json();
+  const { messages } = await req.json();
 
-  if (system) {
-    assistant.instructions = system;
-  }
-
+  // Note: In newer Mastra versions, instructions are set at agent creation time
+  // If you need dynamic system prompts, prepend them to the messages array
   const stream = await assistant.stream(messages);
 
   const encoder = new TextEncoder();

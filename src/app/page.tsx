@@ -1,9 +1,8 @@
-import { Assistant } from "./assistant";
+import LandingPage from "./(public)/page";
 
-export default function Home() {
-  return (
-    <main>
-      <Assistant />
-    </main>
-  );
+// Force dynamic rendering to prevent build-time errors
+export const dynamic = "force-dynamic";
+
+export default function HomePage() {
+  return <LandingPage />;
 }

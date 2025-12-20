@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mastra Assistant",
-  description: "Chatbot using MastraAI, Assistant UI, Tavily, and OpenAI",
-  keywords: ["Mastra", "AI Assistant", "Tavily", "OpenAI"],
+  title: "AI Assistant - AIで仕事を加速",
+  description: "高度なAIアシスタントで、調査・分析・文章作成を効率化。チームで共有できるナレッジベースも構築できます。",
+  keywords: ["AI", "アシスタント", "チャット", "SaaS", "Mastra", "OpenAI"],
 };
 
 export default function RootLayout({
@@ -24,11 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );
