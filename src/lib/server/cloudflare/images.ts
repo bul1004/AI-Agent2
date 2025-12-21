@@ -1,3 +1,6 @@
+import { withLog } from "@/lib/server/logging/logwrap";
+import { summarizeObjectKeys } from "@/lib/server/logging/logger";
+
 const CLOUDFLARE_API_URL = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`;
 
 export interface CloudflareImageResult {
@@ -5,7 +8,7 @@ export interface CloudflareImageResult {
   url: string;
 }
 
-export async function uploadToCloudflareImages(
+async function uploadToCloudflareImagesImpl(
   file: File,
   metadata?: Record<string, string>
 ): Promise<CloudflareImageResult> {
@@ -38,7 +41,17 @@ export async function uploadToCloudflareImages(
   };
 }
 
-export async function deleteFromCloudflareImages(imageId: string): Promise<void> {
+export const uploadToCloudflareImages = withLog(uploadToCloudflareImagesImpl, {
+  name: "cloudflare.images.upload",
+  pickArgs: ([file, metadata]) => ({
+    fileSize: file.size,
+    fileType: file.type,
+    metadataKeys: metadata ? summarizeObjectKeys(metadata).keys : [],
+  }),
+  sampleInfoRate: 1,
+});
+
+async function deleteFromCloudflareImagesImpl(imageId: string): Promise<void> {
   const response = await fetch(`${CLOUDFLARE_API_URL}/${imageId}`, {
     method: "DELETE",
     headers: {
@@ -51,6 +64,15 @@ export async function deleteFromCloudflareImages(imageId: string): Promise<void>
     throw new Error(`Cloudflare Images delete failed: ${JSON.stringify(error)}`);
   }
 }
+
+export const deleteFromCloudflareImages = withLog(
+  deleteFromCloudflareImagesImpl,
+  {
+    name: "cloudflare.images.delete",
+    pickArgs: ([imageId]) => ({ imageIdLen: imageId.length }),
+    sampleInfoRate: 1,
+  }
+);
 
 export function getImageUrl(
   imageId: string,

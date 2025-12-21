@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { createSupabaseBrowserClient } from "@/lib/db/client";
 import { useActiveOrganization } from "@/lib/auth/client";
 import type { PlanType, SubscriptionStatus } from "@/types";
@@ -20,65 +20,69 @@ interface Usage {
   storage_bytes: number;
 }
 
+interface SubscriptionPayload {
+  subscription: Subscription;
+  usage: Usage;
+}
+
+const defaultSubscription: Subscription = {
+  plan: "free",
+  status: "active",
+  current_period_end: null,
+  cancel_at_period_end: false,
+};
+
+const defaultUsage: Usage = {
+  messages_count: 0,
+  tokens_used: 0,
+  files_uploaded: 0,
+  storage_bytes: 0,
+};
+
+const fetchSubscriptionPayload = async (
+  organizationId: string,
+  month: string
+): Promise<SubscriptionPayload> => {
+  const supabase = createSupabaseBrowserClient();
+
+  const [subscriptionResult, usageResult] = await Promise.all([
+    supabase
+      .from("subscriptions")
+      .select("plan, status, current_period_end, cancel_at_period_end")
+      .eq("organization_id", organizationId)
+      .maybeSingle(),
+    supabase
+      .from("usage")
+      .select("messages_count, tokens_used, files_uploaded, storage_bytes")
+      .eq("organization_id", organizationId)
+      .eq("month", month)
+      .maybeSingle(),
+  ]);
+
+  const subscription = subscriptionResult.data
+    ? (subscriptionResult.data as Subscription)
+    : defaultSubscription;
+
+  const usage = usageResult.data
+    ? (usageResult.data as Usage)
+    : defaultUsage;
+
+  return { subscription, usage };
+};
+
 export function useSubscription() {
   const { data: activeOrg } = useActiveOrganization();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [usage, setUsage] = useState<Usage | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const currentMonth = new Date().toISOString().slice(0, 7) + "-01";
+  const shouldFetch = Boolean(activeOrg?.id);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!activeOrg?.id) {
-        setIsLoading(false);
-        return;
-      }
+  const { data, isLoading } = useSWR(
+    shouldFetch ? ["subscription-usage", activeOrg?.id, currentMonth] : null,
+    ([, organizationId, month]) =>
+      fetchSubscriptionPayload(String(organizationId), String(month))
+  );
 
-      const supabase = createSupabaseBrowserClient();
-
-      // Fetch subscription
-      const { data: subData } = await supabase
-        .from("subscriptions")
-        .select("plan, status, current_period_end, cancel_at_period_end")
-        .eq("organization_id", activeOrg.id)
-        .single();
-
-      if (subData) {
-        setSubscription(subData as Subscription);
-      } else {
-        // Default to free plan
-        setSubscription({
-          plan: "free",
-          status: "active",
-          current_period_end: null,
-          cancel_at_period_end: false,
-        });
-      }
-
-      // Fetch current month usage
-      const currentMonth = new Date().toISOString().slice(0, 7) + "-01";
-      const { data: usageData } = await supabase
-        .from("usage")
-        .select("messages_count, tokens_used, files_uploaded, storage_bytes")
-        .eq("organization_id", activeOrg.id)
-        .eq("month", currentMonth)
-        .single();
-
-      if (usageData) {
-        setUsage(usageData as Usage);
-      } else {
-        setUsage({
-          messages_count: 0,
-          tokens_used: 0,
-          files_uploaded: 0,
-          storage_bytes: 0,
-        });
-      }
-
-      setIsLoading(false);
-    }
-
-    fetchData();
-  }, [activeOrg?.id]);
+  const subscription = data?.subscription ?? defaultSubscription;
+  const usage = data?.usage ?? defaultUsage;
 
   const limits = subscription ? getPlanLimits(subscription.plan) : getPlanLimits("free");
   const plan = subscription?.plan || "free";

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 // import { OrgSwitcher } from "@/components/organization/org-switcher";
 import { Button } from "@/components/ui/button";
@@ -175,9 +176,13 @@ export default function DashboardLayout({
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
                       {user?.image ? (
-                        <img
+                        <Image
                           src={user.image}
-                          alt={user.name}
+                          alt={user?.name || "User"}
+                          width={32}
+                          height={32}
+                          sizes="32px"
+                          unoptimized
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -202,9 +207,13 @@ export default function DashboardLayout({
                   >
                     <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-medium overflow-hidden">
                       {user?.image ? (
-                        <img
+                        <Image
                           src={user.image}
-                          alt={user.name}
+                          alt={user?.name || "User"}
+                          width={20}
+                          height={20}
+                          sizes="20px"
+                          unoptimized
                           className="h-full w-full object-cover"
                         />
                       ) : (

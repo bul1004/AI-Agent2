@@ -1,41 +1,63 @@
 "use client";
 
 import { useState } from "react";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { organization } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { X, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 
 interface InviteModalProps {
   organizationId: string;
 }
 
+const inviteSchema = z.object({
+  email: z.string().email("正しいメールアドレスを入力してください"),
+  role: z.enum(["admin", "member"]),
+});
+
+type InviteFormValues = z.infer<typeof inviteSchema>;
+
 export function InviteModal({ organizationId }: InviteModalProps) {
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"admin" | "member">("member");
-  const [loading, setLoading] = useState(false);
+  const form = useForm<InviteFormValues>({
+    resolver: zodResolver(inviteSchema),
+    defaultValues: {
+      email: "",
+      role: "member",
+    },
+  });
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setLoading(true);
+  const handleInvite = async (values: InviteFormValues) => {
     try {
       await organization.inviteMember({
         organizationId,
-        email,
-        role,
+        email: values.email,
+        role: values.role,
       });
 
-      toast.success(`${email} を招待しました`);
-      setEmail("");
+      toast.success(`${values.email} を招待しました`);
+      form.reset({ email: "", role: "member" });
       setOpen(false);
-    } catch (error) {
-      console.error("Invite error:", error);
+    } catch {
       toast.error("招待に失敗しました");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -46,60 +68,64 @@ export function InviteModal({ organizationId }: InviteModalProps) {
         メンバーを招待
       </Button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setOpen(false)}
-          />
-          <div className="relative w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>チームメンバーを招待</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={form.handleSubmit(handleInvite)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="invite-email" className="text-sm font-medium">
+                メールアドレス
+              </Label>
+              <Input
+                id="invite-email"
+                type="email"
+                placeholder="member@example.com"
+                {...form.register("email")}
+              />
+              {form.formState.errors.email && (
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="invite-role" className="text-sm font-medium">
+                権限
+              </Label>
+              <Controller
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
+                  >
+                    <SelectTrigger id="invite-role">
+                      <SelectValue placeholder="権限を選択" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="member">メンバー</SelectItem>
+                      <SelectItem value="admin">管理者</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
             >
-              <X className="h-4 w-4" />
-            </button>
-
-            <h2 className="mb-4 text-lg font-semibold">チームメンバーを招待</h2>
-
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="invite-email" className="text-sm font-medium">
-                  メールアドレス
-                </label>
-                <input
-                  id="invite-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="member@example.com"
-                  required
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="invite-role" className="text-sm font-medium">
-                  権限
-                </label>
-                <select
-                  id="invite-role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as "admin" | "member")}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="member">メンバー</option>
-                  <option value="admin">管理者</option>
-                </select>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading || !email}>
-                {loading ? "送信中..." : "招待を送信"}
-              </Button>
-            </form>
-          </div>
-        </div>
-      )}
+              {form.formState.isSubmitting ? "送信中..." : "招待を送信"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

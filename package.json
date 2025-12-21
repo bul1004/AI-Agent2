@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed"
@@ -21,11 +22,13 @@
     "@mastra/core": "^0.24.9",
     "@mastra/pg": "^0.17.10",
     "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@hookform/resolvers": "^3.3.4",
     "@stripe/stripe-js": "^8.6.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
@@ -36,6 +39,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.562.0",
+    "nuqs": "^2.0.0",
     "nanoid": "^5.1.6",
     "next": "15.2.1",
     "next-axiom": "^1.8.0",
@@ -43,11 +47,14 @@
     "resend": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.60.0",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
     "stripe": "^20.1.0",
+    "swr": "^2.2.5",
     "tailwind-merge": "^3.0.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -58,6 +65,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
+    "prettier": "^3.4.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -23,8 +23,7 @@ export function SubscriptionStatus() {
       if (error) throw new Error(error);
 
       window.location.href = url;
-    } catch (error) {
-      console.error("Portal error:", error);
+    } catch {
       toast.error("エラーが発生しました");
     }
   };

@@ -6,6 +6,7 @@
 
 import { Resend } from "resend";
 import { createLogger, serializeError } from "@/lib/server/logging/logger";
+import { withLog } from "@/lib/server/logging/logwrap";
 
 // Lazy initialization to avoid build-time errors when API key is not set
 let resendInstance: Resend | null = null;
@@ -31,7 +32,7 @@ interface SendInvitationEmailParams {
 /**
  * Send organization invitation email
  */
-export async function sendInvitationEmail({
+async function sendInvitationEmailImpl({
   email,
   invitationId,
   organizationName,
@@ -43,9 +44,15 @@ export async function sendInvitationEmail({
       name: "auth.invitation.sendEmail",
       args: { toEmailLen: email.length, organizationName },
     });
-    // Development fallback: log the invite
-    console.log(`[DEV] Invite ${email} to ${organizationName} by ${inviterEmail || "unknown"}`);
-    console.log(`[DEV] Invitation ID: ${invitationId}`);
+    logger.info("Invitation email skipped in development", {
+      name: "auth.invitation.sendEmail",
+      args: {
+        toEmailLen: email.length,
+        organizationName,
+        invitationIdLen: invitationId.length,
+        inviterEmailLen: inviterEmail?.length ?? 0,
+      },
+    });
     return { success: true };
   }
 
@@ -109,6 +116,17 @@ export async function sendInvitationEmail({
     return { success: false, error: message };
   }
 }
+
+export const sendInvitationEmail = withLog(sendInvitationEmailImpl, {
+  name: "auth.invitation.sendEmail",
+  pickArgs: ([params]) => ({
+    toEmailLen: params.email.length,
+    organizationName: params.organizationName,
+    invitationIdLen: params.invitationId.length,
+    inviterEmailLen: params.inviterEmail?.length ?? 0,
+  }),
+  sampleInfoRate: 0,
+});
 
 interface BuildContentParams {
   appName: string;

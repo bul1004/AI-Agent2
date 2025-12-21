@@ -60,11 +60,11 @@ const MastraModelAdapter: ChatModelAdapter = {
               yield {
                 content: [{ type: "text", text }],
               };
-            } else if (parsed.type === "error") {
-              throw new Error(parsed.value || "Unknown error");
-            }
-          } catch (e) {
-            console.error("Error parsing SSE message:", e, data);
+          } else if (parsed.type === "error") {
+            throw new Error(parsed.value || "Unknown error");
+          }
+          } catch {
+            // Ignore malformed SSE chunks
           }
         }
       }

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
-import { Button } from "@/components/ui/button";
 import {
   Settings,
   LogOut,
@@ -14,9 +14,9 @@ import {
   User,
   ChevronRight,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { SettingsModal } from "@/components/profile/settings-modal";
 import { SubscriptionModal } from "@/components/billing/subscription-modal";
+import { ProfileMenuItem } from "@/components/profile/profile-menu-item";
 
 interface ProfileMenuProps {
   isOpen: boolean;
@@ -59,9 +59,13 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
             >
               <div className="h-10 w-10 rounded-full bg-primary overflow-hidden flex items-center justify-center text-primary-foreground">
                 {user?.image ? (
-                  <img
+                  <Image
                     src={user.image}
                     alt={user?.name || "User"}
+                    width={40}
+                    height={40}
+                    sizes="40px"
+                    unoptimized
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -117,12 +121,12 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
 
             {/* Menu Items */}
             <div className="space-y-1">
-              <MenuItem
+              <ProfileMenuItem
                 icon={<Settings className="h-5 w-5" />}
                 label="設定"
                 onClick={() => openSettings("settings")}
               />
-              <MenuItem
+              <ProfileMenuItem
                 icon={<Home className="h-5 w-5" />}
                 label="ホームページ"
                 onClick={() => {
@@ -131,7 +135,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
                 }}
                 showArrow
               />
-              <MenuItem
+              <ProfileMenuItem
                 icon={<HelpCircle className="h-5 w-5" />}
                 label="ヘルプを取得"
                 onClick={() => openSettings("help")}
@@ -142,7 +146,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
             <div className="border-t" />
 
             {/* Logout */}
-            <MenuItem
+            <ProfileMenuItem
               icon={<LogOut className="h-5 w-5" />}
               label="サインアウト"
               onClick={() => {
@@ -166,35 +170,5 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
         onClose={() => setShowSubscriptionModal(false)}
       />
     </>
-  );
-}
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  showArrow?: boolean;
-  variant?: "default" | "destructive";
-}
-
-function MenuItem({
-  icon,
-  label,
-  onClick,
-  showArrow = false,
-  variant = "default",
-}: MenuItemProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors",
-        variant === "destructive" && "text-destructive hover:bg-destructive/10"
-      )}
-    >
-      {icon}
-      <span className="flex-1 text-left text-sm font-medium">{label}</span>
-      {showArrow && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-    </button>
   );
 }

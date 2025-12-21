@@ -28,8 +28,7 @@ export function PricingTable() {
       if (error) throw new Error(error);
 
       window.location.href = url;
-    } catch (error) {
-      console.error("Checkout error:", error);
+    } catch {
       toast.error("エラーが発生しました");
     } finally {
       setLoading(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { User } from "lucide-react";
 import { ProfileMenu } from "./profile-menu";
@@ -16,9 +17,13 @@ export function ProfileAvatarButton() {
         className="h-9 w-9 rounded-full bg-primary overflow-hidden flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity"
       >
         {user?.image ? (
-          <img
+          <Image
             src={user.image}
             alt={user?.name || "User"}
+            width={36}
+            height={36}
+            sizes="36px"
+            unoptimized
             className="h-full w-full object-cover"
           />
         ) : (

@@ -2,7 +2,7 @@
 
 import { organization } from "@/lib/auth/client";
 import type { MemberRole } from "@/types";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 
 interface Member {
   id: string;
@@ -17,27 +17,19 @@ interface MemberListProps {
   organizationId: string;
 }
 
-export function MemberList({ organizationId }: MemberListProps) {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [isPending, setIsPending] = useState(true);
+const fetchMembers = async (organizationId: string): Promise<Member[]> => {
+  const result = await organization.listMembers({
+    query: { organizationId },
+  });
 
-  useEffect(() => {
-    async function fetchMembers() {
-      try {
-        const result = await organization.listMembers({ 
-          query: { organizationId } 
-        });
-        if (result.data?.members) {
-          setMembers(result.data.members as Member[]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch members:", error);
-      } finally {
-        setIsPending(false);
-      }
-    }
-    fetchMembers();
-  }, [organizationId]);
+  return (result.data?.members ?? []) as Member[];
+};
+
+export function MemberList({ organizationId }: MemberListProps) {
+  const { data: members = [], isLoading } = useSWR(
+    ["organization-members", organizationId],
+    ([, orgId]) => fetchMembers(String(orgId))
+  );
 
   const getRoleLabel = (role: MemberRole) => {
     switch (role) {
@@ -63,7 +55,7 @@ export function MemberList({ organizationId }: MemberListProps) {
     }
   };
 
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (

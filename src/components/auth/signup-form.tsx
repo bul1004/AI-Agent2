@@ -1,33 +1,40 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+const signupSchema = z.object({
+  name: z.string().min(1, "名前を入力してください").max(100, "名前は100文字以内で入力してください"),
+  email: z.string().email("正しいメールアドレスを入力してください"),
+  password: z.string().min(8, "パスワードは8文字以上で入力してください"),
+});
+
+type SignupFormValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (password.length < 8) {
-      toast.error("パスワードは8文字以上で入力してください");
-      return;
-    }
-
-    setLoading(true);
-
+  const handleSubmit = async (values: SignupFormValues) => {
     try {
       const result = await signUp.email({
-        email,
-        password,
-        name,
+        email: values.email,
+        password: values.password,
+        name: values.name,
       });
 
       if (result.error) {
@@ -38,61 +45,71 @@ export function SignupForm() {
       toast.success("アカウントを作成しました");
       router.push("/chat");
       router.refresh();
-    } catch (error) {
-      console.error("Signup error:", error);
+    } catch {
       toast.error("登録に失敗しました");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="name" className="text-sm font-medium">
+        <Label htmlFor="name" className="text-sm font-medium">
           名前
-        </label>
-        <input
+        </Label>
+        <Input
           id="name"
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           placeholder="山田 太郎"
           required
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          {...form.register("name")}
         />
+        {form.formState.errors.name && (
+          <p className="text-xs text-destructive">
+            {form.formState.errors.name.message}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
+        <Label htmlFor="email" className="text-sm font-medium">
           メールアドレス
-        </label>
-        <input
+        </Label>
+        <Input
           id="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           placeholder="email@example.com"
           required
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          {...form.register("email")}
         />
+        {form.formState.errors.email && (
+          <p className="text-xs text-destructive">
+            {form.formState.errors.email.message}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
+        <Label htmlFor="password" className="text-sm font-medium">
           パスワード
-        </label>
-        <input
+        </Label>
+        <Input
           id="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           placeholder="8文字以上"
           required
           minLength={8}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          {...form.register("password")}
         />
+        {form.formState.errors.password && (
+          <p className="text-xs text-destructive">
+            {form.formState.errors.password.message}
+          </p>
+        )}
       </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "アカウント作成中..." : "アカウント作成"}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting ? "アカウント作成中..." : "アカウント作成"}
       </Button>
     </form>
   );

@@ -1,23 +1,32 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { parseAsBoolean, useQueryState } from "nuqs";
 import { PricingTable } from "@/components/billing/pricing-table";
 import { SubscriptionStatus } from "@/components/billing/subscription-status";
 import { UsageMeter } from "@/components/billing/usage-meter";
 
 export default function BillingPage() {
-  const searchParams = useSearchParams();
+  const [success, setSuccess] = useQueryState(
+    "success",
+    parseAsBoolean.withDefault(false)
+  );
+  const [canceled, setCanceled] = useQueryState(
+    "canceled",
+    parseAsBoolean.withDefault(false)
+  );
 
   useEffect(() => {
-    if (searchParams.get("success") === "true") {
+    if (success) {
       toast.success("サブスクリプションが有効になりました！");
+      void setSuccess(null);
     }
-    if (searchParams.get("canceled") === "true") {
+    if (canceled) {
       toast.info("チェックアウトがキャンセルされました");
+      void setCanceled(null);
     }
-  }, [searchParams]);
+  }, [success, canceled, setSuccess, setCanceled]);
 
   return (
     <div className="p-8">
