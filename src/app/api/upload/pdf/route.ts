@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { uploadToR2, getR2Key } from "@/lib/cloudflare/r2";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth/server";
+import { uploadToR2, getR2Key } from "@/lib/server/cloudflare/r2";
+import { createSupabaseServerClient } from "@/lib/db/server";
 import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {

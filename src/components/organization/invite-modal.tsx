@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { organization } from "@/lib/auth-client";
+import { organization } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { X, UserPlus } from "lucide-react";

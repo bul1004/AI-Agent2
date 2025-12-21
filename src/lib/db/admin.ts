@@ -16,3 +16,6 @@ export function createSupabaseAdminClient() {
     }
   );
 }
+
+// Alias for compatibility
+export const createAdminClient = createSupabaseAdminClient;

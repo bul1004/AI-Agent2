@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { useActiveOrganization } from "@/lib/auth-client";
+import { createSupabaseBrowserClient } from "@/lib/db/client";
+import { useActiveOrganization } from "@/lib/auth/client";
 import type { PlanType, SubscriptionStatus } from "@/types";
-import { PLANS, getPlanLimits } from "@/lib/stripe";
+import { PLANS, getPlanLimits } from "@/lib/server/stripe";
 
 interface Subscription {
   plan: PlanType;

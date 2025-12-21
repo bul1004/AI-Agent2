@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useActiveOrganization } from "@/lib/auth-client";
-import { PLANS, type PlanType } from "@/lib/stripe";
+import { useActiveOrganization } from "@/lib/auth/client";
+import { PLANS, type PlanType } from "@/lib/server/stripe";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { toast } from "sonner";

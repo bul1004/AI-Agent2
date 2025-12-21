@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Send, Sparkles } from "lucide-react";
 
@@ -12,9 +12,15 @@ export default function LandingPage() {
   const [inputValue, setInputValue] = useState("");
   const [showSignupModal, setShowSignupModal] = useState(false);
 
-  // If authenticated, redirect to chat
+  // Redirect to chat if authenticated
+  useEffect(() => {
+    if (!isPending && session?.user) {
+      router.push("/chat");
+    }
+  }, [isPending, session, router]);
+
+  // Show nothing while redirecting
   if (!isPending && session?.user) {
-    router.push("/chat");
     return null;
   }
 

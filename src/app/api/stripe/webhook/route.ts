@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { PlanType } from "@/lib/stripe";
+import { getStripe } from "@/lib/server/stripe";
+import { createSupabaseAdminClient } from "@/lib/db/admin";
+import type { PlanType } from "@/lib/server/stripe";
 
 // Helper to safely access subscription properties across Stripe SDK versions
 interface StripeSubscriptionData {

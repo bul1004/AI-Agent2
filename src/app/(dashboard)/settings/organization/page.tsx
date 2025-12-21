@@ -1,6 +1,6 @@
 "use client";
 
-import { useActiveOrganization } from "@/lib/auth-client";
+import { useActiveOrganization } from "@/lib/auth/client";
 
 export default function OrganizationSettingsPage() {
   const { data: activeOrg, isPending } = useActiveOrganization();

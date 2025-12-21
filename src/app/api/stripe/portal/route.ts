@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { getStripe } from "@/lib/stripe";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { auth } from "@/lib/auth/server";
+import { getStripe } from "@/lib/server/stripe";
+import { createSupabaseAdminClient } from "@/lib/db/admin";
 
 export async function POST(req: NextRequest) {
   try {

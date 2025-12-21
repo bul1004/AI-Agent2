@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useListOrganizations, useActiveOrganization, organization } from "@/lib/auth-client";
+import { useListOrganizations, useActiveOrganization, organization } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Building2, Check, Plus, ChevronDown } from "lucide-react";
 

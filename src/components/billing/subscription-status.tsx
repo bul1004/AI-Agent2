@@ -1,7 +1,7 @@
 "use client";
 
 import { useSubscription } from "@/hooks/use-subscription";
-import { useActiveOrganization } from "@/lib/auth-client";
+import { useActiveOrganization } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

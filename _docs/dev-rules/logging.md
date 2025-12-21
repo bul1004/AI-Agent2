@@ -1,4 +1,4 @@
-<!-- # ロギング運用方針
+# ロギング運用方針
 
 ## 目的
 
@@ -18,11 +18,11 @@
 
 ```typescript
 // 境界関数をラップ
-export const loadFonts = withLog(
-  async function loadFonts(pdfDoc: PDFDocument) { ... },
+export const sendEmail = withLog(
+  async function sendEmail(to: string, subject: string) { ... },
   {
-    name: "pdf.loadFonts",
-    pickArgs: ([pdfDoc]) => ({ pageCount: pdfDoc.getPageCount() }),
+    name: "email.send",
+    pickArgs: ([to, subject]) => ({ toLen: to.length, subject }),
   }
 );
 ```
@@ -65,4 +65,36 @@ export const loadFonts = withLog(
 - [ ] 境界関数に `withLog` 適用済み
 - [ ] `name` が `domain.function` 形式
 - [ ] `userId` / `orgId` をログに含めている
-- [ ] `pickArgs` で引数を要約（生データなし） -->
+- [ ] `pickArgs` で引数を要約（生データなし）
+
+## Axiomセットアップ
+
+### インストール
+
+```bash
+npm install next-axiom
+```
+
+### 環境変数
+
+```env
+NEXT_PUBLIC_AXIOM_INGEST_ENDPOINT=https://api.axiom.co/v1/datasets/YOUR_DATASET/ingest
+AXIOM_TOKEN=xaat-xxxxxxxx
+```
+
+### next.config.js
+
+```javascript
+const { withAxiom } = require('next-axiom');
+
+module.exports = withAxiom({
+  // your next config
+});
+```
+
+### ミドルウェア
+
+```typescript
+// middleware.ts
+export { middleware } from 'next-axiom';
+```

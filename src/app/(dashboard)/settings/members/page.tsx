@@ -1,6 +1,6 @@
 "use client";
 
-import { useActiveOrganization } from "@/lib/auth-client";
+import { useActiveOrganization } from "@/lib/auth/client";
 import { MemberList } from "@/components/organization/member-list";
 import { InviteModal } from "@/components/organization/invite-modal";
 

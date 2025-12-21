@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { uploadToCloudflareImages } from "@/lib/cloudflare/images";
+import { auth } from "@/lib/auth/server";
+import { uploadToCloudflareImages } from "@/lib/server/cloudflare/images";
 
 export async function POST(req: NextRequest) {
   try {
