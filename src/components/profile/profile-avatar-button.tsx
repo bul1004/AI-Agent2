@@ -17,6 +17,7 @@ export function ProfileAvatarButton() {
       <button
         onMouseEnter={() => setIsMenuOpen(true)}
         className="h-9 w-9 rounded-full bg-primary overflow-hidden flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity"
+        data-testid="profile-avatar-button"
       >
         {user?.image ? (
           <Image

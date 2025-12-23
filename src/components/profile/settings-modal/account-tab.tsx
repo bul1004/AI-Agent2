@@ -12,7 +12,6 @@ import {
   ChevronLeft,
   Copy,
   Info,
-  Key,
   LogOut,
   Sparkles,
   User,
@@ -75,13 +74,22 @@ interface AccountTabProps {
 }
 
 export function AccountTab({ user }: AccountTabProps) {
-  const [view, setView] = useState<"overview" | "edit">("overview");
+  const [view, setView] = useState<ViewType>("overview");
   const [imagePreview, setImagePreview] = useState<string | null>(
     user?.image || null
   );
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState(true);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const hasCredentialAccount = accounts.some(
+    (account) => account.providerId === "credential"
+  );
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
@@ -90,10 +98,46 @@ export function AccountTab({ user }: AccountTabProps) {
     },
   });
 
+  const changePasswordForm = useForm<ChangePasswordFormValues>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const setPasswordForm = useForm<SetPasswordFormValues>({
+    resolver: zodResolver(setPasswordSchema),
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const fetchAccounts = useCallback(async () => {
+    try {
+      setAccountsLoading(true);
+      const response = await authClient.$fetch("/api/auth/list-accounts");
+      if (Array.isArray(response)) {
+        setAccounts(response as AccountInfo[]);
+      }
+    } catch {
+      // If fetching fails, assume no credential account
+      setAccounts([]);
+    } finally {
+      setAccountsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     form.reset({ name: user?.name || "" });
     setImagePreview(user?.image || null);
   }, [user, form]);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -146,6 +190,280 @@ export function AccountTab({ user }: AccountTabProps) {
       toast.success("ユーザーIDをコピーしました");
     }
   };
+
+  const handleChangePassword = async (values: ChangePasswordFormValues) => {
+    try {
+      const response = await authClient.$fetch("/api/auth/change-password", {
+        method: "POST",
+        body: {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+          revokeOtherSessions: false,
+        },
+      });
+      if (response && typeof response === "object" && "user" in response) {
+        toast.success("パスワードを変更しました");
+        changePasswordForm.reset();
+        setView("overview");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "パスワードの変更に失敗しました";
+      if (message.includes("INVALID_PASSWORD")) {
+        toast.error("現在のパスワードが正しくありません");
+      } else {
+        toast.error("パスワードの変更に失敗しました");
+      }
+    }
+  };
+
+  const handleSetPassword = async (values: SetPasswordFormValues) => {
+    try {
+      const response = await authClient.$fetch("/api/auth/set-password", {
+        method: "POST",
+        body: {
+          newPassword: values.newPassword,
+        },
+      });
+      if (response && typeof response === "object" && "status" in response) {
+        toast.success("パスワードを設定しました。メールアドレスとパスワードでもログインできるようになりました");
+        setPasswordForm.reset();
+        setView("overview");
+        fetchAccounts(); // Refresh accounts to reflect new credential account
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "パスワードの設定に失敗しました";
+      if (message.includes("already has a password")) {
+        toast.error("既にパスワードが設定されています");
+      } else {
+        toast.error("パスワードの設定に失敗しました");
+      }
+    }
+  };
+
+  if (view === "password") {
+    return (
+      <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+        <div className="flex items-center gap-2 mb-8 -ml-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setView("overview");
+              changePasswordForm.reset();
+              setPasswordForm.reset();
+              setShowCurrentPassword(false);
+              setShowNewPassword(false);
+              setShowConfirmPassword(false);
+            }}
+            className="h-8 w-8 rounded-full hover:bg-muted"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <h2 className="text-[17px] font-bold">
+            {hasCredentialAccount ? "パスワードを変更" : "パスワードを設定"}
+          </h2>
+        </div>
+
+        {hasCredentialAccount ? (
+          <form
+            onSubmit={changePasswordForm.handleSubmit(handleChangePassword)}
+            className="space-y-6 max-w-sm"
+          >
+            <div className="space-y-1.5">
+              <Label className="text-[13px] text-muted-foreground font-medium">
+                現在のパスワード
+              </Label>
+              <div className="relative">
+                <Input
+                  {...changePasswordForm.register("currentPassword")}
+                  type={showCurrentPassword ? "text" : "password"}
+                  className="bg-[#f2f2f2] border-0 h-10 rounded-xl pr-10 focus-visible:ring-0 focus-visible:bg-[#ededed] transition-colors font-medium"
+                  data-testid="current-password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground/80"
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {changePasswordForm.formState.errors.currentPassword && (
+                <p className="text-red-500 text-xs">
+                  {changePasswordForm.formState.errors.currentPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] text-muted-foreground font-medium">
+                新しいパスワード
+              </Label>
+              <div className="relative">
+                <Input
+                  {...changePasswordForm.register("newPassword")}
+                  type={showNewPassword ? "text" : "password"}
+                  className="bg-[#f2f2f2] border-0 h-10 rounded-xl pr-10 focus-visible:ring-0 focus-visible:bg-[#ededed] transition-colors font-medium"
+                  data-testid="new-password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground/80"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {changePasswordForm.formState.errors.newPassword && (
+                <p className="text-red-500 text-xs">
+                  {changePasswordForm.formState.errors.newPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] text-muted-foreground font-medium">
+                新しいパスワード（確認）
+              </Label>
+              <div className="relative">
+                <Input
+                  {...changePasswordForm.register("confirmPassword")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="bg-[#f2f2f2] border-0 h-10 rounded-xl pr-10 focus-visible:ring-0 focus-visible:bg-[#ededed] transition-colors font-medium"
+                  data-testid="confirm-password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground/80"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {changePasswordForm.formState.errors.confirmPassword && (
+                <p className="text-red-500 text-xs">
+                  {changePasswordForm.formState.errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                disabled={changePasswordForm.formState.isSubmitting}
+                className="px-8 h-10 rounded-xl bg-black hover:bg-black/90 text-white font-bold"
+                data-testid="change-password-submit"
+              >
+                {changePasswordForm.formState.isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "変更"
+                )}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <form
+            onSubmit={setPasswordForm.handleSubmit(handleSetPassword)}
+            className="space-y-6 max-w-sm"
+          >
+            <p className="text-[13px] text-muted-foreground">
+              パスワードを設定すると、メールアドレスとパスワードでもログインできるようになります。
+            </p>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] text-muted-foreground font-medium">
+                新しいパスワード
+              </Label>
+              <div className="relative">
+                <Input
+                  {...setPasswordForm.register("newPassword")}
+                  type={showNewPassword ? "text" : "password"}
+                  className="bg-[#f2f2f2] border-0 h-10 rounded-xl pr-10 focus-visible:ring-0 focus-visible:bg-[#ededed] transition-colors font-medium"
+                  data-testid="new-password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground/80"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {setPasswordForm.formState.errors.newPassword && (
+                <p className="text-red-500 text-xs">
+                  {setPasswordForm.formState.errors.newPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[13px] text-muted-foreground font-medium">
+                新しいパスワード（確認）
+              </Label>
+              <div className="relative">
+                <Input
+                  {...setPasswordForm.register("confirmPassword")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="bg-[#f2f2f2] border-0 h-10 rounded-xl pr-10 focus-visible:ring-0 focus-visible:bg-[#ededed] transition-colors font-medium"
+                  data-testid="confirm-password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground/80"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {setPasswordForm.formState.errors.confirmPassword && (
+                <p className="text-red-500 text-xs">
+                  {setPasswordForm.formState.errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                disabled={setPasswordForm.formState.isSubmitting}
+                className="px-8 h-10 rounded-xl bg-black hover:bg-black/90 text-white font-bold"
+                data-testid="set-password-submit"
+              >
+                {setPasswordForm.formState.isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "設定"
+                )}
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
+    );
+  }
 
   if (view === "edit") {
     return (
@@ -251,6 +569,37 @@ export function AccountTab({ user }: AccountTabProps) {
           <div className="pt-8 border-t border-border/40">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
+                <h3 className="text-[15px] font-bold">
+                  {hasCredentialAccount ? "パスワードを変更" : "パスワードを設定"}
+                </h3>
+                <p className="text-[13px] text-muted-foreground">
+                  {hasCredentialAccount
+                    ? "アカウントのパスワードを変更します。"
+                    : "パスワードを設定すると、メールアドレスでもログインできます。"}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setView("password")}
+                disabled={accountsLoading}
+                className="h-9 px-4 rounded-xl text-[13px] font-bold border-border/60 hover:bg-muted/50"
+                data-testid="password-settings-button"
+              >
+                {accountsLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : hasCredentialAccount ? (
+                  "変更"
+                ) : (
+                  "設定"
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-border/40">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
                 <h3 className="text-[15px] font-bold">アカウントを削除</h3>
                 <p className="text-[13px] text-muted-foreground">
                   これにより、アカウントおよびすべてのデータが削除されます。
@@ -317,6 +666,7 @@ export function AccountTab({ user }: AccountTabProps) {
             size="icon"
             onClick={() => setView("edit")}
             className="h-9 w-9 rounded-xl border-border/60 hover:bg-muted/50"
+            data-testid="edit-profile-button"
           >
             <UserRound className="h-[18px] w-[18px] text-foreground/70" />
           </Button>

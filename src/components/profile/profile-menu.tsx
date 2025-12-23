@@ -55,6 +55,7 @@ export function ProfileMenu({
             <button
               onClick={() => handleOpenSettings("account")}
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors"
+              data-testid="profile-menu-account"
             >
               <div className="h-10 w-10 rounded-full bg-primary overflow-hidden flex items-center justify-center text-primary-foreground">
                 {user?.image ? (
@@ -124,6 +125,7 @@ export function ProfileMenu({
                 icon={<Settings className="h-5 w-5" />}
                 label="設定"
                 onClick={() => handleOpenSettings("settings")}
+                data-testid="profile-menu-settings"
               />
               <ProfileMenuItem
                 icon={<Home className="h-5 w-5" />}
