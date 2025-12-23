@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { LandingPage } from "../page-objects/LandingPage";
 import { SignupPage } from "../page-objects/SignupPage";
+import { generateTestEmail, cleanupTestUser } from "./fixtures";
 
 /**
  * E2Eテスト: メールサインアップフロー
@@ -13,11 +14,12 @@ import { SignupPage } from "../page-objects/SignupPage";
  * 1. パスワードが8文字未満の場合のバリデーションエラー
  */
 
-// テスト用のユニークなメールアドレスを生成
-const generateTestEmail = () =>
-  `test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`;
-
 test.describe("メールサインアップ", () => {
+  // 各テスト後にテストユーザーをクリーンアップ（ログイン中の場合のみ）
+  test.afterEach(async ({ page }) => {
+    await cleanupTestUser(page);
+  });
+
   test("ランディングページのヘッダーからサインアップページへ遷移できる", async ({
     page,
   }) => {

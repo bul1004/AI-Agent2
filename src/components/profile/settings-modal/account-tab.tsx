@@ -118,9 +118,19 @@ export function AccountTab({ user }: AccountTabProps) {
   const fetchAccounts = useCallback(async () => {
     try {
       setAccountsLoading(true);
-      const response = await authClient.$fetch("/api/auth/list-accounts");
-      if (Array.isArray(response)) {
-        setAccounts(response as AccountInfo[]);
+      // Use native fetch to call BetterAuth list-accounts API
+      const response = await fetch("/api/auth/list-accounts", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch accounts");
+      }
+      const data = await response.json();
+      // BetterAuth returns an array of account objects
+      if (Array.isArray(data)) {
+        setAccounts(data as AccountInfo[]);
+      } else {
+        setAccounts([]);
       }
     } catch {
       // If fetching fails, assume no credential account
@@ -193,52 +203,66 @@ export function AccountTab({ user }: AccountTabProps) {
 
   const handleChangePassword = async (values: ChangePasswordFormValues) => {
     try {
-      const response = await authClient.$fetch("/api/auth/change-password", {
+      const response = await fetch("/api/auth/change-password", {
         method: "POST",
-        body: {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           currentPassword: values.currentPassword,
           newPassword: values.newPassword,
           revokeOtherSessions: false,
-        },
+        }),
       });
-      if (response && typeof response === "object" && "user" in response) {
+      const data = await response.json();
+      if (response.ok && data.user) {
         toast.success("パスワードを変更しました");
         changePasswordForm.reset();
         setView("overview");
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "パスワードの変更に失敗しました";
-      if (message.includes("INVALID_PASSWORD")) {
-        toast.error("現在のパスワードが正しくありません");
       } else {
-        toast.error("パスワードの変更に失敗しました");
+        // Handle error response
+        const errorMessage = data.message || data.error || "";
+        if (errorMessage.includes("INVALID_PASSWORD")) {
+          toast.error("現在のパスワードが正しくありません");
+        } else {
+          toast.error("パスワードの変更に失敗しました");
+        }
       }
+    } catch {
+      toast.error("パスワードの変更に失敗しました");
     }
   };
 
   const handleSetPassword = async (values: SetPasswordFormValues) => {
     try {
-      const response = await authClient.$fetch("/api/auth/set-password", {
+      const response = await fetch("/api/auth/set-password", {
         method: "POST",
-        body: {
-          newPassword: values.newPassword,
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          newPassword: values.newPassword,
+        }),
       });
-      if (response && typeof response === "object" && "status" in response) {
+      const data = await response.json();
+      if (response.ok && data.status) {
         toast.success("パスワードを設定しました。メールアドレスとパスワードでもログインできるようになりました");
         setPasswordForm.reset();
         setView("overview");
         fetchAccounts(); // Refresh accounts to reflect new credential account
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "パスワードの設定に失敗しました";
-      if (message.includes("already has a password")) {
-        toast.error("既にパスワードが設定されています");
       } else {
-        toast.error("パスワードの設定に失敗しました");
+        // Handle error response
+        const errorMessage = data.message || data.error || "";
+        if (errorMessage.includes("already has a password")) {
+          toast.error("既にパスワードが設定されています");
+        } else {
+          toast.error("パスワードの設定に失敗しました");
+        }
       }
+    } catch {
+      toast.error("パスワードの設定に失敗しました");
     }
   };
 

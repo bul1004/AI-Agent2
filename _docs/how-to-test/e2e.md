@@ -8,17 +8,21 @@
 ## 2. 実行コマンド
 
 ```bash
-# 標準（AI/CI向け）
+# 標準（AI/CI向け） - Chromiumのみ
 CI=true npx playwright test <test-file> --project=chromium --reporter=list
 
-# フォルダ単位（並列実行）
-npx playwright test tests/<folder> --workers=4 --reporter=list
+# フォルダ単位（Chromiumのみ）
+npx playwright test tests/<folder> --project=chromium --workers=4 --reporter=list
+
+# 全ブラウザ（明示的に指示された場合のみ）
+npx playwright test tests/<folder> --reporter=list
 ```
 
 **ルール**:
 
 - `--reporter=list` 必須（HTMLレポーターはサンドボックスで失敗する）
-- ブラウザは Chromium, Microsoft Edge, Safari
+- **通常開発時は Chromium のみ**（`--project=chromium`）
+- Edge/Safari は明示的に指示された場合のみ実行
 - ポート競合時は `npm run dev` を先に起動し、`--base-url` で指定
 
 ## 3. データ準備
