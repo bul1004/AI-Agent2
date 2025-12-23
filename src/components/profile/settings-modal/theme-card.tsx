@@ -15,7 +15,6 @@ interface ThemeCardProps {
 export function ThemeCard({
   selected,
   onClick,
-  icon,
   label,
   preview,
 }: ThemeCardProps) {
@@ -23,40 +22,30 @@ export function ThemeCard({
     <div
       onClick={onClick}
       className={cn(
-        "group relative flex flex-col items-center gap-3 p-4 pt-2 cursor-pointer rounded-2xl border-2 transition-all duration-300",
+        "group relative flex flex-col gap-3 p-3 cursor-pointer rounded-lg border transition-all duration-200",
         selected
-          ? "border-primary bg-primary/5 ring-4 ring-primary/10 shadow-xl"
-          : "border-muted-foreground/10 bg-muted/20 hover:border-primary/50 hover:bg-muted/30"
+          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+          : "border-border hover:border-primary/50 hover:bg-muted/50"
       )}
     >
-      <div className="w-full aspect-[4/3] rounded-xl overflow-hidden pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+      <div className="w-full aspect-[4/3] rounded-md overflow-hidden pointer-events-none border">
         {preview}
       </div>
-      <div className="flex items-center gap-2 py-1">
+      <div className="flex items-center justify-center py-0.5">
         <span
           className={cn(
-            "p-1 rounded-lg transition-colors",
+            "text-xs font-medium",
             selected
-              ? "bg-primary text-primary-foreground"
+              ? "text-foreground"
               : "text-muted-foreground"
-          )}
-        >
-          {icon}
-        </span>
-        <span
-          className={cn(
-            "text-sm font-bold",
-            selected
-              ? "text-primary"
-              : "text-muted-foreground group-hover:text-foreground"
           )}
         >
           {label}
         </span>
       </div>
       {selected && (
-        <div className="absolute top-2 right-2 h-6 w-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
-          <Check className="h-3.5 w-3.5 stroke-[3]" />
+        <div className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-md">
+          <Check className="h-3 w-3 stroke-[2.5]" />
         </div>
       )}
     </div>

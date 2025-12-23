@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/use-auth";
 // import { OrgSwitcher } from "@/components/organization/org-switcher";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
-import { SubscriptionModal } from "@/components/billing/subscription-modal";
-import { SettingsModal } from "@/components/profile/settings-modal";
+import { SettingsModalProvider } from "@/contexts/settings-modal-context";
+
+const SettingsModal = dynamic(
+  () =>
+    import("@/components/profile/settings-modal").then(
+      (mod) => mod.SettingsModal
+    ),
+  { ssr: false }
+);
+
+const SubscriptionModal = dynamic(
+  () =>
+    import("@/components/billing/subscription-modal").then(
+      (mod) => mod.SubscriptionModal
+    ),
+  { ssr: false }
+);
 
 export default function DashboardLayout({
   children,
@@ -40,12 +56,15 @@ export default function DashboardLayout({
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [initialTab, setInitialTab] = useState<
-    "account" | "settings" | "usage" | "help"
-  >("account");
+  const [initialTab, setInitialTab] =
+    useState<import("@/components/profile/settings-modal/types").SettingsTabKey>(
+      "account"
+    );
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
-  const openSettings = (tab: "account" | "settings" | "usage" | "help") => {
+  const openSettings = (
+    tab: import("@/components/profile/settings-modal/types").SettingsTabKey
+  ) => {
     setInitialTab(tab);
     setIsSettingsOpen(true);
   };
@@ -70,7 +89,11 @@ export default function DashboardLayout({
 
   return (
     <MastraRuntimeProvider>
-      <div className="flex h-screen overflow-hidden">
+      <SettingsModalProvider
+        onOpenSettings={openSettings}
+        onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
+      >
+        <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <aside
           className={cn(
@@ -283,16 +306,21 @@ export default function DashboardLayout({
           )}
           {children}
         </main>
-        <SettingsModal
-          open={isSettingsOpen}
-          onOpenChange={setIsSettingsOpen}
-          initialTab={initialTab}
-        />
-        <SubscriptionModal
-          open={showSubscriptionModal}
-          onClose={() => setShowSubscriptionModal(false)}
-        />
+        {isSettingsOpen && (
+          <SettingsModal
+            open={isSettingsOpen}
+            onOpenChange={setIsSettingsOpen}
+            initialTab={initialTab}
+          />
+        )}
+        {showSubscriptionModal && (
+          <SubscriptionModal
+            open={showSubscriptionModal}
+            onClose={() => setShowSubscriptionModal(false)}
+          />
+        )}
       </div>
+      </SettingsModalProvider>
     </MastraRuntimeProvider>
   );
 }

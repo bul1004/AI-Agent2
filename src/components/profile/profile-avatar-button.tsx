@@ -5,10 +5,12 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { User } from "lucide-react";
 import { ProfileMenu } from "./profile-menu";
+import { useSettingsModal } from "@/contexts/settings-modal-context";
 
 export function ProfileAvatarButton() {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { openSettings, openSubscriptionModal } = useSettingsModal();
 
   return (
     <div className="relative" onMouseLeave={() => setIsMenuOpen(false)}>
@@ -31,7 +33,12 @@ export function ProfileAvatarButton() {
         )}
       </button>
 
-      <ProfileMenu isOpen={isMenuOpen} onOpenChange={setIsMenuOpen} />
+      <ProfileMenu
+        isOpen={isMenuOpen}
+        onOpenChange={setIsMenuOpen}
+        onOpenSettings={openSettings}
+        onOpenSubscriptionModal={openSubscriptionModal}
+      />
     </div>
   );
 }

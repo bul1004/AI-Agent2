@@ -1,7 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BarChart3, ChevronRight, HelpCircle, Settings, User } from "lucide-react";
+import {
+  ChevronRight,
+  HelpCircle,
+  Settings,
+  User,
+  Calendar,
+  Mail,
+  HardDrive,
+  Monitor,
+  Link2,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SettingsTabKey } from "@/components/profile/settings-modal/types";
 
@@ -17,7 +29,13 @@ interface SidebarItemProps {
 const iconMap: Record<SettingsTabKey, ReactNode> = {
   account: <User className="h-[18px] w-[18px]" />,
   settings: <Settings className="h-[18px] w-[18px]" />,
-  usage: <BarChart3 className="h-[18px] w-[18px]" />,
+  usage: <Sparkles className="h-[18px] w-[18px]" />,
+  recurring: <Calendar className="h-[18px] w-[18px]" />,
+  mail: <Mail className="h-[18px] w-[18px]" />,
+  data: <HardDrive className="h-[18px] w-[18px]" />,
+  browser: <Monitor className="h-[18px] w-[18px]" />,
+  connector: <Link2 className="h-[18px] w-[18px]" />,
+  integration: <Layers className="h-[18px] w-[18px]" />,
   help: <HelpCircle className="h-[18px] w-[18px]" />,
 };
 
@@ -33,23 +51,24 @@ export function SidebarItem({
     <button
       onClick={onClick}
       className={cn(
-        "group flex items-center gap-3.5 w-full p-3.5 rounded-2xl text-sm font-semibold transition-all duration-200",
+        "group flex items-center gap-2 w-full px-1 py-1.5 rounded-[10px] text-sm font-medium transition-all duration-150",
         active
-          ? "bg-foreground text-background shadow-lg shadow-foreground/5 md:translate-x-1"
+          ? "bg-[#efefef] text-foreground"
           : muted
-            ? "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]"
+            ? "text-foreground hover:bg-[#f5f5f5]"
+            : "text-foreground hover:bg-[#f5f5f5]"
       )}
     >
-      <span className={cn("transition-transform duration-200", active && "scale-110")}>
+      <span
+        className={cn(
+          "transition-colors shrink-0 text-foreground"
+        )}
+      >
         {iconMap[iconLabel]}
       </span>
-      <span>{label}</span>
+      <span className="truncate">{label}</span>
       {showChevron && (
-        <ChevronRight className="h-3.5 w-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-all translate-x-[-4px] group-hover:translate-x-0" />
-      )}
-      {active && !showChevron && (
-        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-background/40" />
+        <ChevronRight className="h-4 w-4 ml-auto opacity-30 group-hover:opacity-60 transition-opacity" />
       )}
     </button>
   );

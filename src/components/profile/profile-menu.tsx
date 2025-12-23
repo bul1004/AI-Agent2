@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,32 +13,32 @@ import {
   User,
   ChevronRight,
 } from "lucide-react";
-import { SettingsModal } from "@/components/profile/settings-modal";
-import { SubscriptionModal } from "@/components/billing/subscription-modal";
 import { ProfileMenuItem } from "@/components/profile/profile-menu-item";
+import type { SettingsTabKey } from "@/components/profile/settings-modal/types";
 
 interface ProfileMenuProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onOpenSettings: (tab: SettingsTabKey) => void;
+  onOpenSubscriptionModal: () => void;
 }
 
-export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
+export function ProfileMenu({
+  isOpen,
+  onOpenChange,
+  onOpenSettings,
+  onOpenSubscriptionModal,
+}: ProfileMenuProps) {
   const { user, logout } = useAuth();
   const { plan, planDetails } = useSubscription();
   const router = useRouter();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [initialTab, setInitialTab] = useState<
-    "account" | "settings" | "usage" | "help"
-  >("account");
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   if (!isOpen) return null;
 
   const isPaidPlan = plan !== "free";
 
-  const openSettings = (tab: "account" | "settings" | "usage" | "help") => {
-    setInitialTab(tab);
-    setIsSettingsOpen(true);
+  const handleOpenSettings = (tab: SettingsTabKey) => {
+    onOpenSettings(tab);
     onOpenChange(false);
   };
 
@@ -54,7 +53,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
           <div className="p-4 space-y-2">
             {/* User Profile Section */}
             <button
-              onClick={() => openSettings("account")}
+              onClick={() => handleOpenSettings("account")}
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors"
             >
               <div className="h-10 w-10 rounded-full bg-primary overflow-hidden flex items-center justify-center text-primary-foreground">
@@ -91,7 +90,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
                 </div>
                 <button
                   onClick={() => {
-                    setShowSubscriptionModal(true);
+                    onOpenSubscriptionModal();
                     onOpenChange(false);
                   }}
                   className="px-4 py-1.5 bg-foreground text-background text-sm font-medium rounded-full hover:opacity-90 transition-opacity"
@@ -102,7 +101,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
 
               <button
                 className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-background/80 transition-colors"
-                onClick={() => openSettings("usage")}
+                onClick={() => handleOpenSettings("usage")}
               >
                 <Sparkles className="h-5 w-5" />
                 <div className="flex-1 text-left">
@@ -124,7 +123,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
               <ProfileMenuItem
                 icon={<Settings className="h-5 w-5" />}
                 label="設定"
-                onClick={() => openSettings("settings")}
+                onClick={() => handleOpenSettings("settings")}
               />
               <ProfileMenuItem
                 icon={<Home className="h-5 w-5" />}
@@ -138,7 +137,7 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
               <ProfileMenuItem
                 icon={<HelpCircle className="h-5 w-5" />}
                 label="ヘルプを取得"
-                onClick={() => openSettings("help")}
+                onClick={() => handleOpenSettings("help")}
                 showArrow
               />
             </div>
@@ -158,17 +157,6 @@ export function ProfileMenu({ isOpen, onOpenChange }: ProfileMenuProps) {
           </div>
         </div>
       </div>
-
-      {/* Dialogs */}
-      <SettingsModal
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        initialTab={initialTab}
-      />
-      <SubscriptionModal
-        open={showSubscriptionModal}
-        onClose={() => setShowSubscriptionModal(false)}
-      />
     </>
   );
 }
