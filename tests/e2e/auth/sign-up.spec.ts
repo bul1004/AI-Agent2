@@ -88,7 +88,7 @@ test.describe("メールサインアップ", () => {
     await signupPage.fillSignupForm(
       "テスト ユーザー",
       generateTestEmail(),
-      "short" // 5文字
+      "short", // 5文字
     );
 
     // 送信ボタンをクリック（HTML5バリデーションでブロックされるか確認）

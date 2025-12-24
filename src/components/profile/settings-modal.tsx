@@ -16,7 +16,6 @@ import { SidebarItem } from "@/components/profile/settings-modal/sidebar-item";
 import { AccountTab } from "@/components/profile/settings-modal/account-tab";
 import { SettingsTab } from "@/components/profile/settings-modal/settings-tab";
 import { OrganizationTab } from "@/components/profile/settings-modal/organization-tab";
-import { UsageTab } from "@/components/profile/settings-modal/usage-tab";
 import { HelpTab } from "@/components/profile/settings-modal/help-tab";
 import type { SettingsTabKey } from "@/components/profile/settings-modal/types";
 
@@ -24,7 +23,6 @@ const tabTitles: Record<SettingsTabKey, string> = {
   account: "アカウント",
   settings: "設定",
   organization: "組織",
-  usage: "使用状況",
   recurring: "定期タスク",
   mail: "Mail Manus",
   data: "データ管理",
@@ -110,12 +108,6 @@ export function SettingsModal({
                   />
                 )}
                 <SidebarItem
-                  iconLabel="usage"
-                  label="使用状況"
-                  active={activeTab === "usage"}
-                  onClick={() => setActiveTab("usage")}
-                />
-                <SidebarItem
                   iconLabel="recurring"
                   label="定期タスク"
                   active={activeTab === "recurring"}
@@ -185,11 +177,10 @@ export function SettingsModal({
                 {activeTab === "account" && <AccountTab user={user} />}
                 {activeTab === "settings" && <SettingsTab />}
                 {activeTab === "organization" && <OrganizationTab />}
-                {activeTab === "usage" && <UsageTab />}
                 {activeTab === "help" && <HelpTab />}
                 {/* Missing tabs show a coming soon or the component if it existed */}
-                {!["account", "settings", "organization", "usage", "help"].includes(
-                  activeTab
+                {!["account", "settings", "organization", "help"].includes(
+                  activeTab,
                 ) && (
                   <div className="flex flex-col items-center justify-center h-[500px] text-muted-foreground">
                     <p className="text-sm font-medium">Coming Soon</p>

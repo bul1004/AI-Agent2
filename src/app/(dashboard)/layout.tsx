@@ -39,17 +39,17 @@ import { CreateOrgModal } from "@/components/organization/create-org-modal";
 const SettingsModal = dynamic(
   () =>
     import("@/components/profile/settings-modal").then(
-      (mod) => mod.SettingsModal
+      (mod) => mod.SettingsModal,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 const SubscriptionModal = dynamic(
   () =>
     import("@/components/billing/subscription-modal").then(
-      (mod) => mod.SubscriptionModal
+      (mod) => mod.SubscriptionModal,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 export default function DashboardLayout({
@@ -63,9 +63,9 @@ export default function DashboardLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [initialTab, setInitialTab] =
-    useState<import("@/components/profile/settings-modal/types").SettingsTabKey>(
-      "account"
-    );
+    useState<
+      import("@/components/profile/settings-modal/types").SettingsTabKey
+    >("account");
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
 
@@ -75,7 +75,7 @@ export default function DashboardLayout({
   };
 
   const openSettings = (
-    tab: import("@/components/profile/settings-modal/types").SettingsTabKey
+    tab: import("@/components/profile/settings-modal/types").SettingsTabKey,
   ) => {
     setInitialTab(tab);
     setIsSettingsOpen(true);
@@ -106,208 +106,179 @@ export default function DashboardLayout({
         onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
       >
         <div className="flex h-screen overflow-hidden">
-        {/* Sidebar */}
-        <aside
-          className={cn(
-            "flex flex-col border-r bg-muted/30 transition-all duration-300 ease-in-out",
-            isCollapsed ? "w-[60px]" : "w-[260px]"
-          )}
-        >
-          <div className="flex items-center justify-between p-3">
-            <div
-              className={cn(
-                "flex items-center gap-2",
-                isCollapsed && "justify-center w-full"
-              )}
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm">
-                <Bot className="h-5 w-5" />
+          {/* Sidebar */}
+          <aside
+            className={cn(
+              "flex flex-col border-r bg-muted/30 transition-all duration-300 ease-in-out",
+              isCollapsed ? "w-[60px]" : "w-[260px]",
+            )}
+          >
+            <div className="flex items-center justify-between p-3">
+              <div
+                className={cn(
+                  "flex items-center gap-2",
+                  isCollapsed && "justify-center w-full",
+                )}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm">
+                  <Bot className="h-5 w-5" />
+                </div>
+                {!isCollapsed && (
+                  <span className="font-semibold text-sm">ChatGPT-like</span>
+                )}
               </div>
               {!isCollapsed && (
-                <span className="font-semibold text-sm">ChatGPT-like</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground"
+                  onClick={() => setIsCollapsed(true)}
+                >
+                  <PanelLeftClose className="h-5 w-5" />
+                </Button>
               )}
             </div>
-            {!isCollapsed && (
+
+            <div className="px-3 space-y-2">
+              {/* New Chat */}
+              {/* New Chat */}
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground"
-                onClick={() => setIsCollapsed(true)}
+                className={cn(
+                  "w-full justify-start gap-2 px-3 transition-colors duration-200",
+                  "hover:bg-neutral-200/80 dark:hover:bg-neutral-800", // Stronger gray hover
+                  isCollapsed ? "justify-center px-0" : "",
+                )}
+                onClick={() => {
+                  // Logic to start new chat
+                }}
               >
-                <PanelLeftClose className="h-5 w-5" />
+                <SquarePen className="h-4 w-4" />
+                {!isCollapsed && (
+                  <>
+                    <span className="flex-1 text-left">新しいチャット</span>
+                    <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                      <span className="text-[10px]">⇧</span>
+                      <span className="text-[10px]">⌘</span>
+                      <span>O</span>
+                    </div>
+                  </>
+                )}
               </Button>
-            )}
-          </div>
 
-          <div className="px-3 space-y-2">
-            {/* New Chat */}
-            {/* New Chat */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-2 px-3 transition-colors duration-200",
-                "hover:bg-neutral-200/80 dark:hover:bg-neutral-800", // Stronger gray hover
-                isCollapsed ? "justify-center px-0" : ""
-              )}
-              onClick={() => {
-                // Logic to start new chat
-              }}
-            >
-              <SquarePen className="h-4 w-4" />
+              {/* Search */}
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-2 px-3 text-muted-foreground transition-colors duration-200",
+                  "hover:bg-neutral-200/80 dark:hover:bg-neutral-800",
+                  isCollapsed ? "justify-center px-0" : "",
+                )}
+              >
+                <Search className="h-4 w-4" />
+                {!isCollapsed && <span>チャットを検索</span>}
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2">
               {!isCollapsed && (
                 <>
-                  <span className="flex-1 text-left">新しいチャット</span>
-                  <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                    <span className="text-[10px]">⇧</span>
-                    <span className="text-[10px]">⌘</span>
-                    <span>O</span>
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 px-2">
+                    今日のチャット
                   </div>
+                  <ThreadList />
                 </>
               )}
-            </Button>
+            </div>
 
-            {/* Search */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-2 px-3 text-muted-foreground transition-colors duration-200",
-                "hover:bg-neutral-200/80 dark:hover:bg-neutral-800",
-                isCollapsed ? "justify-center px-0" : ""
-              )}
-            >
-              <Search className="h-4 w-4" />
-              {!isCollapsed && <span>チャットを検索</span>}
-            </Button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2">
-            {!isCollapsed && (
-              <>
-                <div className="text-xs font-semibold text-muted-foreground mb-2 px-2">
-                  今日のチャット
-                </div>
-                <ThreadList />
-              </>
-            )}
-          </div>
-
-          <div className="border-t p-3">
-            {isCollapsed ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-full justify-center"
-                onClick={() => setIsCollapsed(false)}
-              >
-                <PanelLeftOpen className="h-5 w-5" />
-              </Button>
-            ) : (
-              /* Dropped Profile Logic Here for Expanded State, reusing simpler version or full */
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-3"
-                  >
-                    {/* Show current org or personal profile */}
-                    {currentOrg ? (
-                      <>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-muted text-muted-foreground text-sm font-medium">
-                          {currentOrg.logo ? (
-                            <Image
-                              src={currentOrg.logo}
-                              alt={currentOrg.name}
-                              width={32}
-                              height={32}
-                              sizes="32px"
-                              unoptimized
-                              className="h-full w-full object-cover rounded-sm"
-                            />
-                          ) : (
-                            currentOrg.name.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div className="text-left flex-1 truncate">
-                          <div className="font-semibold text-sm truncate">
-                            {currentOrg.name}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
-                          {user?.image ? (
-                            <Image
-                              src={user.image}
-                              alt={user?.name || "User"}
-                              width={32}
-                              height={32}
-                              sizes="32px"
-                              unoptimized
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            user?.name?.charAt(0).toUpperCase() || "U"
-                          )}
-                        </div>
-                        <div className="text-left flex-1 truncate">
-                          <div className="font-semibold text-sm truncate">
-                            {user?.name}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  side="top"
-                  align="start"
-                  className="w-[240px] mb-2"
+            <div className="border-t p-3">
+              {isCollapsed ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-full justify-center"
+                  onClick={() => setIsCollapsed(false)}
                 >
-                  {/* Organization Switcher Section */}
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                    アカウントを切り替える
-                  </DropdownMenuLabel>
-
-                  {/* Personal Account */}
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => handleSwitchOrg(null)}
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-medium overflow-hidden">
-                      {user?.image ? (
-                        <Image
-                          src={user.image}
-                          alt={user?.name || "User"}
-                          width={24}
-                          height={24}
-                          sizes="24px"
-                          unoptimized
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        user?.name?.charAt(0).toUpperCase() || "U"
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <span className="font-medium text-sm truncate">{user?.name}</span>
-                      <span className="text-xs text-muted-foreground">個人</span>
-                    </div>
-                    {!currentOrg && <Check className="h-4 w-4 text-primary" />}
-                  </DropdownMenuItem>
-
-                  {/* Organization List */}
-                  {organizations.map((org) => (
-                    <DropdownMenuItem
-                      key={org.id}
-                      className="gap-2 cursor-pointer py-2.5"
-                      onClick={() => handleSwitchOrg(org.id)}
+                  <PanelLeftOpen className="h-5 w-5" />
+                </Button>
+              ) : (
+                /* Dropped Profile Logic Here for Expanded State, reusing simpler version or full */
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-3"
                     >
-                      <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted text-muted-foreground text-[10px] font-medium overflow-hidden">
-                        {org.logo ? (
+                      {/* Show current org or personal profile */}
+                      {currentOrg ? (
+                        <>
+                          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-muted text-muted-foreground text-sm font-medium">
+                            {currentOrg.logo ? (
+                              <Image
+                                src={currentOrg.logo}
+                                alt={currentOrg.name}
+                                width={32}
+                                height={32}
+                                sizes="32px"
+                                unoptimized
+                                className="h-full w-full object-cover rounded-sm"
+                              />
+                            ) : (
+                              currentOrg.name.charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div className="text-left flex-1 truncate">
+                            <div className="font-semibold text-sm truncate">
+                              {currentOrg.name}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
+                            {user?.image ? (
+                              <Image
+                                src={user.image}
+                                alt={user?.name || "User"}
+                                width={32}
+                                height={32}
+                                sizes="32px"
+                                unoptimized
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              user?.name?.charAt(0).toUpperCase() || "U"
+                            )}
+                          </div>
+                          <div className="text-left flex-1 truncate">
+                            <div className="font-semibold text-sm truncate">
+                              {user?.name}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="top"
+                    align="start"
+                    className="w-[240px] mb-2"
+                  >
+                    {/* Organization Switcher Section */}
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                      アカウントを切り替える
+                    </DropdownMenuLabel>
+
+                    {/* Personal Account */}
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => handleSwitchOrg(null)}
+                    >
+                      <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-medium overflow-hidden">
+                        {user?.image ? (
                           <Image
-                            src={org.logo}
-                            alt={org.name}
+                            src={user.image}
+                            alt={user?.name || "User"}
                             width={24}
                             height={24}
                             sizes="24px"
@@ -315,81 +286,122 @@ export default function DashboardLayout({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          org.name.charAt(0).toUpperCase()
+                          user?.name?.charAt(0).toUpperCase() || "U"
                         )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="font-medium text-sm truncate">{org.name}</span>
-                        <span className="text-xs text-muted-foreground">チーム</span>
+                        <span className="font-medium text-sm truncate">
+                          {user?.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          個人
+                        </span>
                       </div>
-                      {currentOrg?.id === org.id && <Check className="h-4 w-4 text-primary" />}
+                      {!currentOrg && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
                     </DropdownMenuItem>
-                  ))}
 
-                  {/* Create Team Button */}
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => setShowCreateOrgModal(true)}
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted/50">
-                      <Plus className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <span className="text-sm">チームを作成</span>
-                  </DropdownMenuItem>
+                    {/* Organization List */}
+                    {organizations.map((org) => (
+                      <DropdownMenuItem
+                        key={org.id}
+                        className="gap-2 cursor-pointer py-2.5"
+                        onClick={() => handleSwitchOrg(org.id)}
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted text-muted-foreground text-[10px] font-medium overflow-hidden">
+                          {org.logo ? (
+                            <Image
+                              src={org.logo}
+                              alt={org.name}
+                              width={24}
+                              height={24}
+                              sizes="24px"
+                              unoptimized
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            org.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="font-medium text-sm truncate">
+                            {org.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            チーム
+                          </span>
+                        </div>
+                        {currentOrg?.id === org.id && (
+                          <Check className="h-4 w-4 text-primary" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
 
-                  <DropdownMenuSeparator />
+                    {/* Create Team Button */}
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => setShowCreateOrgModal(true)}
+                    >
+                      <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted/50">
+                        <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                      <span className="text-sm">チームを作成</span>
+                    </DropdownMenuItem>
 
-                  {/* Menu Items */}
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => openSettings("account")}
-                  >
-                    <Building2 className="h-4 w-4" />
-                    <span>アカウント設定</span>
-                  </DropdownMenuItem>
+                    <DropdownMenuSeparator />
 
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => setShowSubscriptionModal(true)}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    <span>プランをアップグレード</span>
-                  </DropdownMenuItem>
+                    {/* Menu Items */}
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => openSettings("account")}
+                    >
+                      <Building2 className="h-4 w-4" />
+                      <span>アカウント設定</span>
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => openSettings("settings")}
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>設定</span>
-                  </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => setShowSubscriptionModal(true)}
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>プランをアップグレード</span>
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={() => openSettings("help")}
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                    <span>ヘルプ</span>
-                  </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => openSettings("settings")}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>設定</span>
+                    </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => openSettings("help")}
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                      <span>ヘルプ</span>
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-2.5"
-                    onClick={logout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>ログアウト</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </aside>
+                    <DropdownMenuSeparator />
 
-        {/* Main content */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative">
-          {/* If we want the toggle button OUTSIDE when collapsed, we can put it here. But I put a button in the bottom of collapsed sidebar to expand. Or I can put it at top. 
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={logout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>ログアウト</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative">
+            {/* If we want the toggle button OUTSIDE when collapsed, we can put it here. But I put a button in the bottom of collapsed sidebar to expand. Or I can put it at top. 
                Let's stick to the sidebar internal toggle for now as per Image 1. 
                Wait, in Image 2 (collapsed), there is NO toggle visible. 
                But I need a way to open it. 
@@ -398,31 +410,31 @@ export default function DashboardLayout({
                I'll put the expand button at the top of the collapsed sidebar, replacing the Close button logic? 
                Actually, let's make the Logo clickable or add the toggle button in the header of collapsed sidebar.
            */}
-          {isCollapsed && (
-            <div className="absolute top-3 left-3 z-50 md:hidden">
-              {/* Mobile toggle logic if needed, but we are doing desktop sidebar */}
-            </div>
+            {isCollapsed && (
+              <div className="absolute top-3 left-3 z-50 md:hidden">
+                {/* Mobile toggle logic if needed, but we are doing desktop sidebar */}
+              </div>
+            )}
+            {children}
+          </main>
+          {isSettingsOpen && (
+            <SettingsModal
+              open={isSettingsOpen}
+              onOpenChange={setIsSettingsOpen}
+              initialTab={initialTab}
+            />
           )}
-          {children}
-        </main>
-        {isSettingsOpen && (
-          <SettingsModal
-            open={isSettingsOpen}
-            onOpenChange={setIsSettingsOpen}
-            initialTab={initialTab}
+          {showSubscriptionModal && (
+            <SubscriptionModal
+              open={showSubscriptionModal}
+              onClose={() => setShowSubscriptionModal(false)}
+            />
+          )}
+          <CreateOrgModal
+            open={showCreateOrgModal}
+            onOpenChange={setShowCreateOrgModal}
           />
-        )}
-        {showSubscriptionModal && (
-          <SubscriptionModal
-            open={showSubscriptionModal}
-            onClose={() => setShowSubscriptionModal(false)}
-          />
-        )}
-        <CreateOrgModal
-          open={showCreateOrgModal}
-          onOpenChange={setShowCreateOrgModal}
-        />
-      </div>
+        </div>
       </SettingsModalProvider>
     </MastraRuntimeProvider>
   );

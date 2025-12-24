@@ -35,21 +35,27 @@ test.describe("パスワード変更", () => {
     await openPasswordSettings(page);
 
     // パスワード変更フォームに入力
-    await page.locator('[data-testid="current-password-input"]').fill(testPassword);
+    await page
+      .locator('[data-testid="current-password-input"]')
+      .fill(testPassword);
     await page.locator('[data-testid="new-password-input"]').fill(newPassword);
-    await page.locator('[data-testid="confirm-password-input"]').fill(newPassword);
+    await page
+      .locator('[data-testid="confirm-password-input"]')
+      .fill(newPassword);
 
     // 変更ボタンをクリック
     await page.locator('[data-testid="change-password-submit"]').click();
 
     // 成功トーストを確認（sonnerトーストまたはアカウント画面への戻りを確認）
     await expect(
-      page.locator('[data-sonner-toast]').filter({ hasText: 'パスワードを変更しました' }).or(
-        page.locator('text=パスワードを変更しました')
-      ).or(
-        // パスワード変更成功後はアカウント overview に戻る
-        page.locator('h2:has-text("アカウント")')
-      )
+      page
+        .locator("[data-sonner-toast]")
+        .filter({ hasText: "パスワードを変更しました" })
+        .or(page.locator("text=パスワードを変更しました"))
+        .or(
+          // パスワード変更成功後はアカウント overview に戻る
+          page.locator('h2:has-text("アカウント")'),
+        ),
     ).toBeVisible({ timeout: 15000 });
   });
 
@@ -63,15 +69,19 @@ test.describe("パスワード変更", () => {
     await openPasswordSettings(page);
 
     // 間違ったパスワードで変更を試みる
-    await page.locator('[data-testid="current-password-input"]').fill("wrongPassword123!");
+    await page
+      .locator('[data-testid="current-password-input"]')
+      .fill("wrongPassword123!");
     await page.locator('[data-testid="new-password-input"]').fill(newPassword);
-    await page.locator('[data-testid="confirm-password-input"]').fill(newPassword);
+    await page
+      .locator('[data-testid="confirm-password-input"]')
+      .fill(newPassword);
 
     await page.locator('[data-testid="change-password-submit"]').click();
 
     // エラートーストを確認（sonnerトースト）
     await expect(
-      page.locator('[data-sonner-toast][data-type="error"]')
+      page.locator('[data-sonner-toast][data-type="error"]'),
     ).toBeVisible({ timeout: 15000 });
   });
 
@@ -85,7 +95,9 @@ test.describe("パスワード変更", () => {
     await openPasswordSettings(page);
 
     // 短いパスワードで変更を試みる
-    await page.locator('[data-testid="current-password-input"]').fill(testPassword);
+    await page
+      .locator('[data-testid="current-password-input"]')
+      .fill(testPassword);
     await page.locator('[data-testid="new-password-input"]').fill("short");
     await page.locator('[data-testid="confirm-password-input"]').fill("short");
 
@@ -93,7 +105,7 @@ test.describe("パスワード変更", () => {
 
     // バリデーションエラーを確認
     await expect(
-      page.locator('text=パスワードは8文字以上で入力してください')
+      page.locator("text=パスワードは8文字以上で入力してください"),
     ).toBeVisible({ timeout: 5000 });
   });
 });

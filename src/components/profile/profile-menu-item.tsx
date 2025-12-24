@@ -26,7 +26,7 @@ export function ProfileMenuItem({
       onClick={onClick}
       className={cn(
         "w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors",
-        variant === "destructive" && "text-destructive hover:bg-destructive/10"
+        variant === "destructive" && "text-destructive hover:bg-destructive/10",
       )}
       data-testid={dataTestId}
     >

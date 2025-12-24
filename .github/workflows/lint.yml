@@ -1,0 +1,72 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: [main, staging, develop]
+  pull_request:
+    branches: [main, staging, develop]
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Provide CI env vars
+        run: |
+          cat <<'EOF' >> "$GITHUB_ENV"
+          NEXT_PUBLIC_APP_URL=http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
+          SUPABASE_SERVICE_ROLE_KEY=dummy-supabase-service-role-key
+          SUPABASE_DB_URL=postgresql://postgres.dummy-user:dummy-pass@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
+          BETTER_AUTH_SECRET=dummy-better-auth-secret-12345678901234567890
+          BETTER_AUTH_URL=http://localhost:3000
+          GOOGLE_CLIENT_ID=dummy-google-client-id
+          GOOGLE_CLIENT_SECRET=dummy-google-client-secret
+          STRIPE_SECRET_KEY=sk_test_dummy
+          STRIPE_WEBHOOK_SECRET=whsec_dummy
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy
+          STRIPE_PRICE_ID_BUSINESS=price_dummy
+          CLOUDFLARE_ACCOUNT_ID=dummy-cloudflare-account-id
+          CLOUDFLARE_API_TOKEN=dummy-cloudflare-api-token
+          CLOUDFLARE_IMAGES_ACCOUNT_HASH=dummy-images-account-hash
+          R2_ACCESS_KEY_ID=dummy-r2-access-key
+          R2_SECRET_ACCESS_KEY=dummy-r2-secret-key
+          R2_BUCKET_NAME=dummy-r2-bucket
+          R2_PUBLIC_URL=https://dummy.r2.dev
+          RESEND_API_KEY=re_dummy
+          RESEND_FROM_EMAIL=hello@example.com
+          OPENAI_API_KEY=sk-dummy
+          TAVILY_API_KEY=tvly-dummy
+          # ANTHROPIC_API_KEY=sk-ant-dummy
+          E2E_TEST_PASSWORD=E2eTestPassword123!
+          E2E_TEST_ORG_NAME="E2E Test Team"
+          E2E_OWNER_EMAIL=e2e-owner@example.com
+          E2E_OWNER_NAME="E2E Owner"
+          E2E_ADMIN_EMAIL=e2e-admin@example.com
+          E2E_ADMIN_NAME="E2E Admin"
+          E2E_MEMBER_EMAIL=e2e-member@example.com
+          E2E_MEMBER_NAME="E2E Member"
+          E2E_REAL_EMAIL=your-real-email@example.com
+          EOF
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.16.0"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
+      - name: TypeScript check
+        run: npx tsc --noEmit

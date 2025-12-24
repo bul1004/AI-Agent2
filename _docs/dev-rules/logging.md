@@ -85,7 +85,7 @@ AXIOM_TOKEN=xaat-xxxxxxxx
 ### next.config.js
 
 ```javascript
-const { withAxiom } = require('next-axiom');
+const { withAxiom } = require("next-axiom");
 
 module.exports = withAxiom({
   // your next config
@@ -96,5 +96,5 @@ module.exports = withAxiom({
 
 ```typescript
 // middleware.ts
-export { middleware } from 'next-axiom';
+export { middleware } from "next-axiom";
 ```

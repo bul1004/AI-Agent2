@@ -1,18 +1,18 @@
 {
-    // ポリシー設定 (Off, Auto, Turbo)
-    "antigravity.agent.terminal.executionPolicy": "Off",
-    // 許可リスト: ポリシーが "Off" の場合でも、ここに書かれたコマンドは自動実行されます
-    "antigravity.agent.terminal.allowList": [
-        "ls",
-        "pwd",
-        "git status",
-        "npm test",
-        "echo *"
-    ],
-    // 拒否リスト: ポリシーが "Turbo" の場合でも、ここに書かれたコマンドは必ず確認を求めます
-    "antigravity.agent.terminal.denyList": [
-        "rm -rf *",
-        "gcloud app deploy",
-        "aws s3 rm"
-    ]
+  // ポリシー設定 (Off, Auto, Turbo)
+  "antigravity.agent.terminal.executionPolicy": "Off",
+  // 許可リスト: ポリシーが "Off" の場合でも、ここに書かれたコマンドは自動実行されます
+  "antigravity.agent.terminal.allowList": [
+    "ls",
+    "pwd",
+    "git status",
+    "npm test",
+    "echo *"
+  ],
+  // 拒否リスト: ポリシーが "Turbo" の場合でも、ここに書かれたコマンドは必ず確認を求めます
+  "antigravity.agent.terminal.denyList": [
+    "rm -rf *",
+    "gcloud app deploy",
+    "aws s3 rm"
+  ]
 }

@@ -62,9 +62,16 @@ export function InviteModal({ organizationId }: InviteModalProps) {
       const errorCode = errorObj?.error?.code;
       const errorMessage = errorObj?.error?.message;
 
-      if (errorCode === "USER_ALREADY_INVITED" || errorMessage?.includes("already") || errorMessage?.includes("invitation")) {
+      if (
+        errorCode === "USER_ALREADY_INVITED" ||
+        errorMessage?.includes("already") ||
+        errorMessage?.includes("invitation")
+      ) {
         toast.error("このメールアドレスは既に招待済みです");
-      } else if (errorCode === "USER_IS_ALREADY_A_MEMBER" || errorMessage?.includes("member")) {
+      } else if (
+        errorCode === "USER_IS_ALREADY_A_MEMBER" ||
+        errorMessage?.includes("member")
+      ) {
         toast.error("このユーザーは既にメンバーです");
       } else {
         toast.error("招待に失敗しました");
@@ -85,7 +92,10 @@ export function InviteModal({ organizationId }: InviteModalProps) {
             <DialogTitle>チームメンバーを招待</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={form.handleSubmit(handleInvite)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleInvite)}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="invite-email" className="text-sm font-medium">
                 メールアドレス

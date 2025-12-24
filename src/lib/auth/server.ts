@@ -13,7 +13,7 @@ const sessionLogger = createLogger("auth.customSession");
  * This allows restoring the organization selection after sign-in
  */
 async function getLastActiveOrganization(
-  userId: string
+  userId: string,
 ): Promise<string | null> {
   try {
     const supabase = createAdminClient();
@@ -76,7 +76,7 @@ async function getLastActiveOrganization(
  */
 async function saveLastActiveOrganization(
   userId: string,
-  organizationId: string | null
+  organizationId: string | null,
 ): Promise<void> {
   try {
     const supabase = createAdminClient();
@@ -149,7 +149,8 @@ async function resolveActiveOrganizationRole(params: {
 }
 
 // Use a dummy value during build time when env vars are not available
-const isBuilding = process.env.NODE_ENV === "production" && !process.env.BETTER_AUTH_SECRET;
+const isBuilding =
+  process.env.NODE_ENV === "production" && !process.env.BETTER_AUTH_SECRET;
 
 /**
  * BetterAuth server configuration
@@ -167,7 +168,9 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
 
   // Secret for signing tokens
-  secret: process.env.BETTER_AUTH_SECRET || "build-time-dummy-secret-replace-in-production",
+  secret:
+    process.env.BETTER_AUTH_SECRET ||
+    "build-time-dummy-secret-replace-in-production",
 
   // Email & Password authentication
   emailAndPassword: {
@@ -330,9 +333,7 @@ export const auth = betterAuth({
     }),
   ],
 
-  trustedOrigins: [
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  ],
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"],
 });
 
 // Export auth type for client usage

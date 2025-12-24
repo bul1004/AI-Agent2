@@ -22,7 +22,7 @@ const getBytes = (file: Buffer | Uint8Array) =>
 async function uploadToR2Impl(
   key: string,
   file: Buffer | Uint8Array,
-  contentType: string
+  contentType: string,
 ): Promise<string> {
   await r2Client.send(
     new PutObjectCommand({
@@ -30,7 +30,7 @@ async function uploadToR2Impl(
       Key: key,
       Body: file,
       ContentType: contentType,
-    })
+    }),
   );
 
   return `${process.env.R2_PUBLIC_URL}/${key}`;
@@ -51,7 +51,7 @@ async function deleteFromR2Impl(key: string): Promise<void> {
     new DeleteObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME!,
       Key: key,
-    })
+    }),
   );
 }
 
@@ -63,7 +63,7 @@ export const deleteFromR2 = withLog(deleteFromR2Impl, {
 
 async function getSignedDownloadUrlImpl(
   key: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME!,
@@ -82,7 +82,7 @@ export const getSignedDownloadUrl = withLog(getSignedDownloadUrlImpl, {
 async function getSignedUploadUrlImpl(
   key: string,
   contentType: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<string> {
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME!,
@@ -103,6 +103,10 @@ export const getSignedUploadUrl = withLog(getSignedUploadUrlImpl, {
   sampleInfoRate: 1,
 });
 
-export function getR2Key(organizationId: string, type: "pdf" | "file", filename: string): string {
+export function getR2Key(
+  organizationId: string,
+  type: "pdf" | "file",
+  filename: string,
+): string {
   return `${organizationId}/${type}s/${filename}`;
 }

@@ -28,18 +28,22 @@ export function SettingsTab() {
             一般
           </div>
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">
-              言語
-            </Label>
+            <Label className="text-sm font-medium text-foreground">言語</Label>
             <Select value={language} onValueChange={setLanguage}>
               <SelectTrigger className="w-full sm:w-[280px] bg-background border px-3.5 py-5 rounded-lg h-auto text-sm font-medium transition-all hover:bg-muted/50">
                 <SelectValue placeholder="言語を選択" />
               </SelectTrigger>
               <SelectContent className="rounded-lg shadow-xl border p-1">
-                <SelectItem value="ja" className="rounded-md py-2.5 font-medium">
+                <SelectItem
+                  value="ja"
+                  className="rounded-md py-2.5 font-medium"
+                >
                   日本語
                 </SelectItem>
-                <SelectItem value="en" className="rounded-md py-2.5 font-medium">
+                <SelectItem
+                  value="en"
+                  className="rounded-md py-2.5 font-medium"
+                >
                   English
                 </SelectItem>
               </SelectContent>
@@ -48,9 +52,7 @@ export function SettingsTab() {
         </div>
 
         <div className="space-y-5">
-          <div className="font-semibold text-sm">
-            外観
-          </div>
+          <div className="font-semibold text-sm">外観</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 font-medium">
             <ThemeCard
               selected={theme === "light"}
@@ -104,9 +106,7 @@ export function SettingsTab() {
         </div>
 
         <div className="space-y-5 pt-6 border-t">
-          <div className="text-sm font-semibold">
-            パーソナライゼーション
-          </div>
+          <div className="text-sm font-semibold">パーソナライゼーション</div>
 
           <div className="flex items-start justify-between py-3 group cursor-pointer gap-4">
             <div className="space-y-1 flex-1">
@@ -139,7 +139,9 @@ export function SettingsTab() {
 
         <div className="pt-6 border-t">
           <div className="flex items-center justify-between p-5 rounded-xl bg-muted/30 border">
-            <div className="font-medium text-sm text-foreground">クッキーを管理</div>
+            <div className="font-medium text-sm text-foreground">
+              クッキーを管理
+            </div>
             <Button
               variant="outline"
               className="bg-background hover:bg-muted/50 font-medium px-5 py-2 h-auto rounded-lg text-sm transition-all"

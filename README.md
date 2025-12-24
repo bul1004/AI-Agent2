@@ -15,12 +15,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Getting Started
 
 1. Set up environment variables in `.env`:
+
 ```
 OPENAI_API_KEY=your-openai-api-key
 TAVILY_API_KEY=your-tavily-api-key
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 # or
@@ -30,6 +32,7 @@ pnpm install
 ```
 
 3. Run the development server:
+
 ```bash
 npm run dev
 # or

@@ -25,7 +25,7 @@ export function ThemeCard({
         "group relative flex flex-col gap-3 p-3 cursor-pointer rounded-lg border transition-all duration-200",
         selected
           ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-          : "border-border hover:border-primary/50 hover:bg-muted/50"
+          : "border-border hover:border-primary/50 hover:bg-muted/50",
       )}
     >
       <div className="w-full aspect-[4/3] rounded-md overflow-hidden pointer-events-none border">
@@ -35,9 +35,7 @@ export function ThemeCard({
         <span
           className={cn(
             "text-xs font-medium",
-            selected
-              ? "text-foreground"
-              : "text-muted-foreground"
+            selected ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {label}

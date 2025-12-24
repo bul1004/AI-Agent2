@@ -23,7 +23,10 @@ export function PricingTable() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizationId: activeOrg.id, plan: "business" }),
+        body: JSON.stringify({
+          organizationId: activeOrg.id,
+          plan: "business",
+        }),
       });
 
       const { url, error } = await res.json();

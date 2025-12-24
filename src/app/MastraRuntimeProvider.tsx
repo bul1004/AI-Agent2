@@ -47,7 +47,7 @@ const MastraModelAdapter: ChatModelAdapter = {
           if (line.trim() === "" || !line.startsWith("data: ")) continue;
 
           const data = line.substring(6);
-          
+
           if (data === "[DONE]") {
             break;
           }
@@ -56,13 +56,13 @@ const MastraModelAdapter: ChatModelAdapter = {
             const parsed = JSON.parse(data);
             if (parsed.type === "text" && parsed.value) {
               text += parsed.value;
-              
+
               yield {
                 content: [{ type: "text", text }],
               };
-          } else if (parsed.type === "error") {
-            throw new Error(parsed.value || "Unknown error");
-          }
+            } else if (parsed.type === "error") {
+              throw new Error(parsed.value || "Unknown error");
+            }
           } catch {
             // Ignore malformed SSE chunks
           }

@@ -1,6 +1,11 @@
 "use client";
 
-import { useActiveOrganization, useListOrganizations, organization, authClient } from "@/lib/auth/client";
+import {
+  useActiveOrganization,
+  useListOrganizations,
+  organization,
+  authClient,
+} from "@/lib/auth/client";
 import { useCallback } from "react";
 
 type OrgRole = "admin" | "owner" | "member";
@@ -11,40 +16,35 @@ type OrgRole = "admin" | "owner" | "member";
  */
 export function useOrganization() {
   const { data: orgs, isPending: isLoadingOrgs } = useListOrganizations();
-  const { data: activeOrg, isPending: isLoadingActive } = useActiveOrganization();
+  const { data: activeOrg, isPending: isLoadingActive } =
+    useActiveOrganization();
 
   // ========================================
   // Organization Management
   // ========================================
 
-  const createOrg = useCallback(
-    async (name: string, slug?: string) => {
-      // Generate slug from name if not provided
-      let finalSlug = slug;
-      if (!finalSlug) {
-        const baseSlug = name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "");
-        // If slug is empty (e.g., Japanese-only name), generate a unique one
-        finalSlug =
-          baseSlug ||
-          `org-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-      }
-      return organization.create({
-        name,
-        slug: finalSlug,
-      });
-    },
-    []
-  );
+  const createOrg = useCallback(async (name: string, slug?: string) => {
+    // Generate slug from name if not provided
+    let finalSlug = slug;
+    if (!finalSlug) {
+      const baseSlug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      // If slug is empty (e.g., Japanese-only name), generate a unique one
+      finalSlug =
+        baseSlug ||
+        `org-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    }
+    return organization.create({
+      name,
+      slug: finalSlug,
+    });
+  }, []);
 
-  const switchOrg = useCallback(
-    async (organizationId: string | null) => {
-      return organization.setActive({ organizationId });
-    },
-    []
-  );
+  const switchOrg = useCallback(async (organizationId: string | null) => {
+    return organization.setActive({ organizationId });
+  }, []);
 
   const updateOrg = useCallback(
     async (organizationId: string, data: { name?: string; logo?: string }) => {
@@ -53,7 +53,7 @@ export function useOrganization() {
         data,
       });
     },
-    []
+    [],
   );
 
   // Alias for switchOrg with different signature (for compatibility)
@@ -68,7 +68,7 @@ export function useOrganization() {
           : params.organization.id;
       return organization.setActive({ organizationId: orgId });
     },
-    []
+    [],
   );
 
   // ========================================
@@ -84,7 +84,7 @@ export function useOrganization() {
         role,
       });
     },
-    [activeOrg?.id]
+    [activeOrg?.id],
   );
 
   const updateMemberRole = useCallback(
@@ -96,7 +96,7 @@ export function useOrganization() {
         role,
       });
     },
-    [activeOrg?.id]
+    [activeOrg?.id],
   );
 
   const removeMember = useCallback(
@@ -107,7 +107,7 @@ export function useOrganization() {
         memberIdOrEmail,
       });
     },
-    [activeOrg?.id]
+    [activeOrg?.id],
   );
 
   const getMembers = useCallback(async () => {

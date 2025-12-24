@@ -7,7 +7,8 @@ import { toast } from "sonner";
 
 export function SubscriptionStatus() {
   const { data: activeOrg } = useActiveOrganization();
-  const { subscription, planDetails, isLoading, isSubscribed } = useSubscription();
+  const { subscription, planDetails, isLoading, isSubscribed } =
+    useSubscription();
 
   const handleManageSubscription = async () => {
     if (!activeOrg?.id) return;

@@ -220,7 +220,6 @@ app/api/{endpoint}/
 - **組織アカウント**: `activeOrganizationId` でスコープ
 - **RLS ポリシー**: `get_current_user_id()` / `get_current_org_id()` で最小権限
 
-
 ---
 
 ## パフォーマンス最適化

@@ -2,7 +2,6 @@
 
 import type { FC } from "react";
 import { ThreadPrimitive } from "@assistant-ui/react";
-import { CreditDisplay } from "@/components/profile/credit-display";
 import { ProfileAvatarButton } from "@/components/profile/profile-avatar-button";
 import { Composer } from "@/components/assistant-ui/thread/composer";
 import { ThreadScrollToBottom } from "@/components/assistant-ui/thread/thread-scroll-to-bottom";
@@ -20,7 +19,6 @@ export const Thread: FC = () => {
       }}
     >
       <div className="sticky top-0 z-10 flex justify-end items-center gap-2 px-4 py-3 bg-background">
-        <CreditDisplay credits={1267} />
         <ProfileAvatarButton />
       </div>
 

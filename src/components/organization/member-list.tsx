@@ -28,7 +28,7 @@ const fetchMembers = async (organizationId: string): Promise<Member[]> => {
 export function MemberList({ organizationId }: MemberListProps) {
   const { data: members = [], isLoading } = useSWR(
     ["organization-members", organizationId],
-    ([, orgId]) => fetchMembers(String(orgId))
+    ([, orgId]) => fetchMembers(String(orgId)),
   );
 
   const getRoleLabel = (role: MemberRole) => {
@@ -68,10 +68,7 @@ export function MemberList({ organizationId }: MemberListProps) {
   return (
     <div className="divide-y rounded-lg border">
       {members?.map((member) => (
-        <div
-          key={member.id}
-          className="flex items-center justify-between p-4"
-        >
+        <div key={member.id} className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium">
               {member.user?.name?.charAt(0).toUpperCase() || "?"}
@@ -85,7 +82,7 @@ export function MemberList({ organizationId }: MemberListProps) {
           </div>
           <span
             className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeClass(
-              member.role as MemberRole
+              member.role as MemberRole,
             )}`}
           >
             {getRoleLabel(member.role as MemberRole)}

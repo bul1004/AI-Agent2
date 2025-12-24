@@ -10,7 +10,7 @@ export interface CloudflareImageResult {
 
 async function uploadToCloudflareImagesImpl(
   file: File,
-  metadata?: Record<string, string>
+  metadata?: Record<string, string>,
 ): Promise<CloudflareImageResult> {
   const formData = new FormData();
   formData.append("file", file);
@@ -29,7 +29,9 @@ async function uploadToCloudflareImagesImpl(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Cloudflare Images upload failed: ${JSON.stringify(error)}`);
+    throw new Error(
+      `Cloudflare Images upload failed: ${JSON.stringify(error)}`,
+    );
   }
 
   const result = await response.json();
@@ -61,7 +63,9 @@ async function deleteFromCloudflareImagesImpl(imageId: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Cloudflare Images delete failed: ${JSON.stringify(error)}`);
+    throw new Error(
+      `Cloudflare Images delete failed: ${JSON.stringify(error)}`,
+    );
   }
 }
 
@@ -71,12 +75,12 @@ export const deleteFromCloudflareImages = withLog(
     name: "cloudflare.images.delete",
     pickArgs: ([imageId]) => ({ imageIdLen: imageId.length }),
     sampleInfoRate: 1,
-  }
+  },
 );
 
 export function getImageUrl(
   imageId: string,
-  variant: "public" | "thumbnail" | "avatar" = "public"
+  variant: "public" | "thumbnail" | "avatar" = "public",
 ): string {
   return `https://imagedelivery.net/${process.env.CLOUDFLARE_IMAGES_ACCOUNT_HASH}/${imageId}/${variant}`;
 }

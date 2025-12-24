@@ -62,7 +62,7 @@ export interface WithLogOptions<T extends (...args: any[]) => any> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function withLog<T extends (...args: any[]) => Promise<any>>(
   fn: T,
-  options: WithLogOptions<T>
+  options: WithLogOptions<T>,
 ): T {
   const { name, pickArgs, sampleInfoRate = 0 } = options;
 
@@ -142,7 +142,7 @@ export function withLog<T extends (...args: any[]) => Promise<any>>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function withLogSync<T extends (...args: any[]) => any>(
   fn: T,
-  options: WithLogOptions<T>
+  options: WithLogOptions<T>,
 ): T {
   const { name, pickArgs } = options;
 

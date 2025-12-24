@@ -7,10 +7,10 @@ BetterAuth で生成されたパスワードハッシュが含まれているた
 
 ## テストユーザー
 
-| ロール | メール | パスワード |
-|--------|--------|------------|
-| owner | e2e-owner@example.com | E2eTestPassword123! |
-| admin | e2e-admin@example.com | E2eTestPassword123! |
+| ロール | メール                 | パスワード          |
+| ------ | ---------------------- | ------------------- |
+| owner  | e2e-owner@example.com  | E2eTestPassword123! |
+| admin  | e2e-admin@example.com  | E2eTestPassword123! |
 | member | e2e-member@example.com | E2eTestPassword123! |
 
 ## テスト組織

@@ -32,7 +32,10 @@ async function handleChatRequestImpl(req: Request): Promise<Response> {
           // Ignore close write failures
         }
       } catch (error: unknown) {
-        if (error instanceof Error && error.message.includes("ResponseAborted")) {
+        if (
+          error instanceof Error &&
+          error.message.includes("ResponseAborted")
+        ) {
           return;
         }
 
@@ -44,8 +47,8 @@ async function handleChatRequestImpl(req: Request): Promise<Response> {
         try {
           await writer.write(
             encoder.encode(
-              `data: ${JSON.stringify({ type: "error", value: error instanceof Error ? error.message : String(error) })}\n\n`
-            )
+              `data: ${JSON.stringify({ type: "error", value: error instanceof Error ? error.message : String(error) })}\n\n`,
+            ),
           );
         } catch {
           // Ignore write failures
@@ -76,7 +79,7 @@ async function handleChatRequestImpl(req: Request): Promise<Response> {
 
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

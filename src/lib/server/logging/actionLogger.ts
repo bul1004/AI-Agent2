@@ -20,7 +20,7 @@ async function logActionEvent(
   actionName: string,
   level: ActionLogLevel,
   message: string,
-  fields: ActionLogFields = {}
+  fields: ActionLogFields = {},
 ): Promise<void> {
   const logger = createLogger(actionName);
   logger[level](message, {
@@ -42,7 +42,7 @@ export async function logActionError(
   actionName: string,
   error: unknown,
   fields: ActionLogFields = {},
-  message?: string
+  message?: string,
 ): Promise<void> {
   await logActionEvent(actionName, "error", message ?? `${actionName} failed`, {
     ...fields,
@@ -56,7 +56,7 @@ export async function logActionError(
 export async function logActionWarning(
   actionName: string,
   message: string,
-  fields: ActionLogFields = {}
+  fields: ActionLogFields = {},
 ): Promise<void> {
   await logActionEvent(actionName, "warn", message, fields);
 }
@@ -67,7 +67,7 @@ export async function logActionWarning(
 export async function logActionInfo(
   actionName: string,
   message: string,
-  fields: ActionLogFields = {}
+  fields: ActionLogFields = {},
 ): Promise<void> {
   await logActionEvent(actionName, "info", message, fields);
 }

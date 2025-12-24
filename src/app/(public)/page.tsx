@@ -57,9 +57,7 @@ export default function LandingPage() {
             <Button variant="ghost" onClick={() => router.push("/login")}>
               ログイン
             </Button>
-            <Button onClick={() => router.push("/signup")}>
-              無料で始める
-            </Button>
+            <Button onClick={() => router.push("/signup")}>無料で始める</Button>
           </div>
         </div>
       </header>

@@ -10,7 +10,13 @@ interface UsageMetricProps {
   icon: ReactNode;
 }
 
-export function UsageMetric({ label, value, used, total, icon }: UsageMetricProps) {
+export function UsageMetric({
+  label,
+  value,
+  used,
+  total,
+  icon,
+}: UsageMetricProps) {
   const percentage = total ? (used / total) * 100 : 0;
 
   return (

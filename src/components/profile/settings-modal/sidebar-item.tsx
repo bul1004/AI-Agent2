@@ -12,7 +12,6 @@ import {
   Monitor,
   Link2,
   Layers,
-  Sparkles,
   Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,7 +30,6 @@ const iconMap: Record<SettingsTabKey, ReactNode> = {
   account: <User className="h-[18px] w-[18px]" />,
   settings: <Settings className="h-[18px] w-[18px]" />,
   organization: <Building2 className="h-[18px] w-[18px]" />,
-  usage: <Sparkles className="h-[18px] w-[18px]" />,
   recurring: <Calendar className="h-[18px] w-[18px]" />,
   mail: <Mail className="h-[18px] w-[18px]" />,
   data: <HardDrive className="h-[18px] w-[18px]" />,
@@ -58,14 +56,10 @@ export function SidebarItem({
           ? "bg-[#efefef] text-foreground"
           : muted
             ? "text-foreground hover:bg-[#f5f5f5]"
-            : "text-foreground hover:bg-[#f5f5f5]"
+            : "text-foreground hover:bg-[#f5f5f5]",
       )}
     >
-      <span
-        className={cn(
-          "transition-colors shrink-0 text-foreground"
-        )}
-      >
+      <span className={cn("transition-colors shrink-0 text-foreground")}>
         {iconMap[iconLabel]}
       </span>
       <span className="truncate">{label}</span>

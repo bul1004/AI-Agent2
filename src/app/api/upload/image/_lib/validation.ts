@@ -9,7 +9,9 @@ export type ImageUploadParseResult =
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
-export function parseImageUploadFormData(formData: FormData): ImageUploadParseResult {
+export function parseImageUploadFormData(
+  formData: FormData,
+): ImageUploadParseResult {
   const file = formData.get("file");
   const organizationId = formData.get("organizationId");
 
@@ -29,7 +31,8 @@ export function parseImageUploadFormData(formData: FormData): ImageUploadParseRe
     ok: true,
     data: {
       file,
-      organizationId: typeof organizationId === "string" ? organizationId : null,
+      organizationId:
+        typeof organizationId === "string" ? organizationId : null,
     },
   };
 }

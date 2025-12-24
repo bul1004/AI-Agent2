@@ -36,7 +36,9 @@ async function handleCheckoutImpl(req: NextRequest) {
       .eq("organization_id", organizationId)
       .single();
 
-    const subData = subscription as { stripe_customer_id: string | null } | null;
+    const subData = subscription as {
+      stripe_customer_id: string | null;
+    } | null;
     let customerId = subData?.stripe_customer_id;
 
     if (!customerId) {
@@ -68,8 +70,8 @@ async function handleCheckoutImpl(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/chat`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/chat`,
       metadata: {
         organizationId,
         plan,
@@ -90,7 +92,7 @@ async function handleCheckoutImpl(req: NextRequest) {
     });
     return NextResponse.json(
       { error: "Failed to create checkout session" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

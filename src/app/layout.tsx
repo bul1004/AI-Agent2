@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Assistant - AIで仕事を加速",
-  description: "高度なAIアシスタントで、調査・分析・文章作成を効率化。チームで共有できるナレッジベースも構築できます。",
+  description:
+    "高度なAIアシスタントで、調査・分析・文章作成を効率化。チームで共有できるナレッジベースも構築できます。",
   keywords: ["AI", "アシスタント", "チャット", "SaaS", "Mastra", "OpenAI"],
 };
 

@@ -76,7 +76,7 @@ interface AccountTabProps {
 export function AccountTab({ user }: AccountTabProps) {
   const [view, setView] = useState<ViewType>("overview");
   const [imagePreview, setImagePreview] = useState<string | null>(
-    user?.image || null
+    user?.image || null,
   );
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
@@ -88,7 +88,7 @@ export function AccountTab({ user }: AccountTabProps) {
   const router = useRouter();
 
   const hasCredentialAccount = accounts.some(
-    (account) => account.providerId === "credential"
+    (account) => account.providerId === "credential",
   );
 
   const form = useForm<AccountFormValues>({
@@ -248,7 +248,9 @@ export function AccountTab({ user }: AccountTabProps) {
       });
       const data = await response.json();
       if (response.ok && data.status) {
-        toast.success("パスワードを設定しました。メールアドレスとパスワードでもログインできるようになりました");
+        toast.success(
+          "パスワードを設定しました。メールアドレスとパスワードでもログインできるようになりました",
+        );
         setPasswordForm.reset();
         setView("overview");
         fetchAccounts(); // Refresh accounts to reflect new credential account
@@ -594,7 +596,9 @@ export function AccountTab({ user }: AccountTabProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h3 className="text-[15px] font-bold">
-                  {hasCredentialAccount ? "パスワードを変更" : "パスワードを設定"}
+                  {hasCredentialAccount
+                    ? "パスワードを変更"
+                    : "パスワードを設定"}
                 </h3>
                 <p className="text-[13px] text-muted-foreground">
                   {hasCredentialAccount

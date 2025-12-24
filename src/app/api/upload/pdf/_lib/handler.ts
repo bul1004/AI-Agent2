@@ -67,7 +67,7 @@ async function handlePdfUploadImpl(req: NextRequest) {
     });
     return NextResponse.json(
       { error: "Failed to upload PDF" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -9,7 +9,9 @@ export type PdfUploadParseResult =
 
 const MAX_PDF_BYTES = 50 * 1024 * 1024;
 
-export function parsePdfUploadFormData(formData: FormData): PdfUploadParseResult {
+export function parsePdfUploadFormData(
+  formData: FormData,
+): PdfUploadParseResult {
   const file = formData.get("file");
   const organizationId = formData.get("organizationId");
 

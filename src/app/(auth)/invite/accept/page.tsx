@@ -7,7 +7,12 @@ import { organization, useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, XCircle, LogIn } from "lucide-react";
 
-type AcceptStatus = "loading" | "accepting" | "success" | "error" | "login_required";
+type AcceptStatus =
+  | "loading"
+  | "accepting"
+  | "success"
+  | "error"
+  | "login_required";
 
 function AcceptInvitationContent() {
   const router = useRouter();
@@ -38,7 +43,10 @@ function AcceptInvitationContent() {
       try {
         // Create a timeout promise
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("リクエストがタイムアウトしました")), 30000)
+          setTimeout(
+            () => reject(new Error("リクエストがタイムアウトしました")),
+            30000,
+          ),
         );
 
         // Race between the actual request and timeout
@@ -70,7 +78,9 @@ function AcceptInvitationContent() {
             return;
           }
           setStatus("error");
-          setErrorMessage(result.error.message || "招待の受け入れに失敗しました");
+          setErrorMessage(
+            result.error.message || "招待の受け入れに失敗しました",
+          );
           return;
         }
 
@@ -82,7 +92,7 @@ function AcceptInvitationContent() {
       } catch (err) {
         setStatus("error");
         setErrorMessage(
-          err instanceof Error ? err.message : "招待の受け入れに失敗しました"
+          err instanceof Error ? err.message : "招待の受け入れに失敗しました",
         );
       }
     };
@@ -98,7 +108,9 @@ function AcceptInvitationContent() {
         <div className="flex flex-col items-center gap-4 py-8">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
           <p className="text-muted-foreground">
-            {status === "loading" ? "読み込み中..." : "招待を受け入れています..."}
+            {status === "loading"
+              ? "読み込み中..."
+              : "招待を受け入れています..."}
           </p>
         </div>
       ) : status === "login_required" ? (
@@ -128,9 +140,7 @@ function AcceptInvitationContent() {
           <CheckCircle className="h-12 w-12 text-green-500" />
           <div className="text-center space-y-2">
             <h1 className="text-xl font-semibold">招待を受け入れました</h1>
-            <p className="text-sm text-muted-foreground">
-              組織に参加しました
-            </p>
+            <p className="text-sm text-muted-foreground">組織に参加しました</p>
           </div>
           <p className="text-xs text-muted-foreground">
             ダッシュボードにリダイレクトしています...

@@ -31,7 +31,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { UserPlus, Crown, Shield, User, ChevronDown, Trash2 } from "lucide-react";
+import {
+  UserPlus,
+  Crown,
+  Shield,
+  User,
+  ChevronDown,
+  Trash2,
+} from "lucide-react";
 import { SectionHeader } from "./section-header";
 
 interface Member {
@@ -67,7 +74,7 @@ export function OrganizationTab() {
 
   const { data: members = [], isLoading: isLoadingMembers } = useSWR(
     activeOrg?.id ? ["organization-members", activeOrg.id] : null,
-    ([, orgId]) => fetchMembers(String(orgId))
+    ([, orgId]) => fetchMembers(String(orgId)),
   );
 
   const form = useForm<InviteFormValues>({
@@ -80,10 +87,11 @@ export function OrganizationTab() {
 
   // Find current user's membership to determine if they can manage members
   const currentUserMember = members.find(
-    (m) => m.userId === user?.id || m.user?.id === user?.id
+    (m) => m.userId === user?.id || m.user?.id === user?.id,
   );
   const currentUserRole = currentUserMember?.role as MemberRole | undefined;
-  const canManageMembers = currentUserRole === "owner" || currentUserRole === "admin";
+  const canManageMembers =
+    currentUserRole === "owner" || currentUserRole === "admin";
 
   const getRoleLabel = (role: MemberRole) => {
     switch (role) {
@@ -227,7 +235,8 @@ export function OrganizationTab() {
             {members.map((member) => {
               const memberRole = member.role as MemberRole;
               const isOwner = memberRole === "owner";
-              const isSelf = member.userId === user?.id || member.user?.id === user?.id;
+              const isSelf =
+                member.userId === user?.id || member.user?.id === user?.id;
               const canChangeRole = canManageMembers && !isOwner && !isSelf;
               const canRemove = canManageMembers && !isOwner && !isSelf;
 
@@ -277,7 +286,9 @@ export function OrganizationTab() {
                             管理者
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleRoleChange(member.id, "member")}
+                            onClick={() =>
+                              handleRoleChange(member.id, "member")
+                            }
                             disabled={memberRole === "member"}
                           >
                             <User className="mr-2 h-4 w-4" />
@@ -300,7 +311,10 @@ export function OrganizationTab() {
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() =>
-                          handleRemoveMember(member.id, member.user?.name || "Unknown")
+                          handleRemoveMember(
+                            member.id,
+                            member.user?.name || "Unknown",
+                          )
                         }
                       >
                         <Trash2 className="h-4 w-4" />
@@ -321,7 +335,10 @@ export function OrganizationTab() {
             <DialogTitle>チームメンバーを招待</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={form.handleSubmit(handleInvite)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleInvite)}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="invite-email" className="text-sm font-medium">
                 メールアドレス

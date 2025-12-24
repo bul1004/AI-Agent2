@@ -28,7 +28,7 @@ const tavilyExtractInputSchema = z.object({
 type TavilyExtractContext = z.infer<typeof tavilyExtractInputSchema>;
 
 const tavilyExtractImpl = async (
-  context: TavilyExtractContext
+  context: TavilyExtractContext,
 ): Promise<{
   results: { url: string; content: string }[];
   failedResults: unknown[];
@@ -79,7 +79,7 @@ const tavilySearchInputSchema = z.object({
     .enum(["basic", "advanced"])
     .optional()
     .describe(
-      "The depth of the search. 'basic' is faster, 'advanced' is more thorough."
+      "The depth of the search. 'basic' is faster, 'advanced' is more thorough.",
     ),
   maxResults: z
     .number()
@@ -91,7 +91,7 @@ const tavilySearchInputSchema = z.object({
     .boolean()
     .optional()
     .describe(
-      "Whether to include an AI-generated answer based on the search results."
+      "Whether to include an AI-generated answer based on the search results.",
     ),
   topic: z
     .enum(["general", "news"])

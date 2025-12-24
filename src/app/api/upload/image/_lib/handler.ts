@@ -46,7 +46,7 @@ async function handleImageUploadImpl(req: NextRequest) {
     });
     return NextResponse.json(
       { error: "Failed to upload image" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

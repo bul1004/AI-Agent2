@@ -81,7 +81,7 @@ export function isErrorLogged(error: unknown): boolean {
  */
 export async function flushLoggerSafely(
   logger: Logger,
-  timeoutMs = 2000
+  timeoutMs = 2000,
 ): Promise<void> {
   let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
@@ -120,7 +120,7 @@ export async function flushLoggerSafely(
  */
 export function summarizeString(
   text: string,
-  previewLength = 50
+  previewLength = 50,
 ): { textLen: number; preview: string } {
   return {
     textLen: text.length,
@@ -165,7 +165,7 @@ export function summarizeArray<T>(items: T[]): { itemCount: number } {
  */
 export function summarizeObjectKeys(
   obj: Record<string, unknown>,
-  limit = 10
+  limit = 10,
 ): { keys: string[] } {
   return {
     keys: Object.keys(obj).slice(0, limit),

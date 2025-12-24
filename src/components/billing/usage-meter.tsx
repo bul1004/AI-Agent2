@@ -36,7 +36,9 @@ export function UsageMeter() {
     },
     {
       label: "ストレージ",
-      used: Math.round((usage?.storage_bytes || 0) / (1024 * 1024 * 1024) * 100) / 100, // GB
+      used:
+        Math.round(((usage?.storage_bytes || 0) / (1024 * 1024 * 1024)) * 100) /
+        100, // GB
       limit: limits.storageGb,
       unit: "GB",
     },

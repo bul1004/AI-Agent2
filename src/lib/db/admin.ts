@@ -13,7 +13,7 @@ export function createSupabaseAdminClient() {
         autoRefreshToken: false,
         persistSession: false,
       },
-    }
+    },
   );
 }
 

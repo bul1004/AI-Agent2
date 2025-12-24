@@ -42,7 +42,7 @@ const defaultUsage: Usage = {
 
 const fetchSubscriptionPayload = async (
   organizationId: string,
-  month: string
+  month: string,
 ): Promise<SubscriptionPayload> => {
   const supabase = createSupabaseBrowserClient();
 
@@ -64,9 +64,7 @@ const fetchSubscriptionPayload = async (
     ? (subscriptionResult.data as Subscription)
     : defaultSubscription;
 
-  const usage = usageResult.data
-    ? (usageResult.data as Usage)
-    : defaultUsage;
+  const usage = usageResult.data ? (usageResult.data as Usage) : defaultUsage;
 
   return { subscription, usage };
 };
@@ -79,7 +77,7 @@ export function useSubscription() {
   const { data, isLoading } = useSWR(
     shouldFetch ? ["subscription-usage", activeOrg?.id, currentMonth] : null,
     ([, organizationId, month]) =>
-      fetchSubscriptionPayload(String(organizationId), String(month))
+      fetchSubscriptionPayload(String(organizationId), String(month)),
   );
 
   const subscription = data?.subscription ?? defaultSubscription;
@@ -88,7 +86,8 @@ export function useSubscription() {
   const plan = subscription?.plan || "none";
   const limits = getPlanLimits(plan);
   const planDetails = PLANS[plan];
-  const isActive = subscription?.status === "active" || subscription?.status === "trialing";
+  const isActive =
+    subscription?.status === "active" || subscription?.status === "trialing";
   // 有料契約中かどうか（businessプランかつアクティブ）
   const isSubscribed = plan === "business" && isActive;
 

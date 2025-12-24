@@ -26,7 +26,7 @@ async function handleStripeWebhookImpl(req: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err) {
     logger.error("Webhook signature verification failed", {
@@ -47,9 +47,8 @@ async function handleStripeWebhookImpl(req: NextRequest) {
 
       if (!subscriptionId || !organizationId || !plan) break;
 
-      const stripeSubResponse = await stripe.subscriptions.retrieve(
-        subscriptionId
-      );
+      const stripeSubResponse =
+        await stripe.subscriptions.retrieve(subscriptionId);
       const stripeSub = stripeSubResponse as unknown as StripeSubscriptionData;
 
       await supabase

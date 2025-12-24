@@ -44,7 +44,9 @@ test.describe("メンバー招待", () => {
     await inviteButton.click();
 
     // 招待モーダルが表示されることを確認
-    const inviteModal = page.getByRole("dialog").filter({ hasText: "チームメンバーを招待" });
+    const inviteModal = page
+      .getByRole("dialog")
+      .filter({ hasText: "チームメンバーを招待" });
     await expect(inviteModal).toBeVisible({ timeout: 5000 });
 
     // 招待フォームに入力
@@ -59,7 +61,7 @@ test.describe("メンバー招待", () => {
 
     // 成功トーストを確認
     await expect(
-      page.locator('[data-sonner-toast]').filter({ hasText: "招待しました" })
+      page.locator("[data-sonner-toast]").filter({ hasText: "招待しました" }),
     ).toBeVisible({ timeout: 10000 });
   });
 
@@ -68,35 +70,33 @@ test.describe("メンバー招待", () => {
     await page.goto("/invite/accept");
 
     // エラーメッセージを確認
-    await expect(
-      page.locator("text=招待IDが見つかりません")
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=招待IDが見つかりません")).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test("未ログイン時は招待受け入れページでログイン促進が表示される", async ({ page }) => {
+  test("未ログイン時は招待受け入れページでログイン促進が表示される", async ({
+    page,
+  }) => {
     // 偽の招待IDで招待受け入れページにアクセス
     await page.goto("/invite/accept?id=fake-invitation-id");
 
     // ログイン促進画面を確認
-    await expect(
-      page.locator("text=ログインが必要です")
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("text=ログインが必要です")).toBeVisible({
+      timeout: 10000,
+    });
 
     // ログインボタンが表示されることを確認
-    await expect(
-      page.getByRole("link", { name: "ログイン" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "ログイン" })).toBeVisible();
 
     // 新規登録ボタンが表示されることを確認
-    await expect(
-      page.getByRole("link", { name: "新規登録" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "新規登録" })).toBeVisible();
   });
 
   test("招待を受け入れて組織に参加できる", async ({ page, context }) => {
     // === オーナーとして組織作成・招待 ===
     const ownerUser = await createTestUser(page, {
-      email: generateTestEmail("owner")
+      email: generateTestEmail("owner"),
     });
 
     const orgName = `招待テスト組織-${Date.now()}`;
@@ -113,7 +113,7 @@ test.describe("メンバー招待", () => {
 
     // 成功トーストを待つ
     await expect(
-      page.locator('[data-sonner-toast]').filter({ hasText: "招待しました" })
+      page.locator("[data-sonner-toast]").filter({ hasText: "招待しました" }),
     ).toBeVisible({ timeout: 10000 });
 
     // DBから招待IDを取得
@@ -138,9 +138,9 @@ test.describe("メンバー招待", () => {
     await page.goto(`/invite/accept?id=${invitationId}`);
 
     // 成功メッセージを確認
-    await expect(
-      page.locator("text=招待を受け入れました")
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text=招待を受け入れました")).toBeVisible({
+      timeout: 15000,
+    });
 
     // チャットページにリダイレクトされることを確認
     await expect(page).toHaveURL("/chat", { timeout: 10000 });
@@ -174,7 +174,9 @@ test.describe("メンバー招待", () => {
     await inviteButton.click();
 
     // 招待モーダルが表示されることを確認
-    const inviteModal = page.getByRole("dialog").filter({ hasText: "チームメンバーを招待" });
+    const inviteModal = page
+      .getByRole("dialog")
+      .filter({ hasText: "チームメンバーを招待" });
     await expect(inviteModal).toBeVisible({ timeout: 5000 });
 
     // リアルメールアドレスを入力
@@ -185,7 +187,7 @@ test.describe("メンバー招待", () => {
 
     // 成功トーストを確認
     await expect(
-      page.locator('[data-sonner-toast]').filter({ hasText: "招待しました" })
+      page.locator("[data-sonner-toast]").filter({ hasText: "招待しました" }),
     ).toBeVisible({ timeout: 10000 });
 
     // DBに招待が作成されたことを確認

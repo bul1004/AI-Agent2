@@ -2,7 +2,6 @@ export type SettingsTabKey =
   | "account"
   | "settings"
   | "organization"
-  | "usage"
   | "recurring"
   | "mail"
   | "data"

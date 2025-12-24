@@ -31,18 +31,20 @@ async function handlePortalImpl(req: NextRequest) {
       .eq("organization_id", organizationId)
       .single();
 
-    const subData = subscription as { stripe_customer_id: string | null } | null;
+    const subData = subscription as {
+      stripe_customer_id: string | null;
+    } | null;
 
     if (!subData?.stripe_customer_id) {
       return NextResponse.json(
         { error: "No subscription found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: subData.stripe_customer_id,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/chat`,
     });
 
     logger.info("Portal session created", {
@@ -59,7 +61,7 @@ async function handlePortalImpl(req: NextRequest) {
     });
     return NextResponse.json(
       { error: "Failed to create portal session" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

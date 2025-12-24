@@ -9,14 +9,14 @@ interface SettingsModalContextType {
 }
 
 const SettingsModalContext = createContext<SettingsModalContextType | null>(
-  null
+  null,
 );
 
 export function useSettingsModal() {
   const context = useContext(SettingsModalContext);
   if (!context) {
     throw new Error(
-      "useSettingsModal must be used within SettingsModalProvider"
+      "useSettingsModal must be used within SettingsModalProvider",
     );
   }
   return context;
