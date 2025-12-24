@@ -7,29 +7,23 @@ import { expect } from "@playwright/test";
  */
 export class BillingPage {
   readonly page: Page;
-  readonly profileButton: Locator;
-  readonly upgradeButton: Locator;
-  readonly subscribeButton: Locator;
-  readonly manageButton: Locator;
+  readonly modalContent: Locator;
+  readonly modalTitle: Locator;
   readonly planName: Locator;
   readonly planPrice: Locator;
-  readonly modalContent: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    // プロフィールメニューのボタン
-    this.profileButton = page.getByTestId("profile-avatar-button");
-    // プロフィールメニュー内のアップグレードボタン
-    this.upgradeButton = page.getByRole("button", { name: "アップグレード" });
-    // モーダル内の購読ボタン
-    this.subscribeButton = page.getByRole("button", { name: "今すぐ始める" });
-    // 契約中の場合のボタン
-    this.manageButton = page.getByRole("button", { name: "契約中" });
+
+    // モーダル
+    this.modalContent = page.locator('[role="dialog"]');
+    this.modalTitle = page
+      .locator('[role="dialog"] h2')
+      .filter({ hasText: "プランをアップグレード" });
+
     // プラン情報
     this.planName = page.locator("h3").filter({ hasText: "Business" });
-    this.planPrice = page.locator("text=¥9,800");
-    // モーダルのコンテンツ
-    this.modalContent = page.locator('[role="dialog"]');
+    this.planPrice = page.locator('[role="dialog"]').locator("text=¥9,800");
   }
 
   /**
@@ -45,9 +39,20 @@ export class BillingPage {
    * プロフィールメニューからサブスクリプションモーダルを開く
    */
   async openSubscriptionModal() {
-    await this.profileButton.click();
-    await this.upgradeButton.click();
-    await this.page.waitForTimeout(500); // モーダルのアニメーション待ち
+    // サイドバーのプロフィールボタン（最後のボタン）をクリック
+    const profileBtn = this.page.locator("aside button").last();
+    await profileBtn.waitFor({ state: "visible", timeout: 10000 });
+    await profileBtn.click();
+
+    // メニュー内の「プランをアップグレード」をクリック
+    const upgradeMenuItem = this.page.getByRole("menuitem", {
+      name: /プランをアップグレード/,
+    });
+    await upgradeMenuItem.waitFor({ state: "visible", timeout: 5000 });
+    await upgradeMenuItem.click();
+
+    // モーダルが開くのを待つ
+    await this.modalContent.waitFor({ state: "visible", timeout: 5000 });
   }
 
   /**
@@ -55,51 +60,109 @@ export class BillingPage {
    */
   async expectLoaded() {
     await expect(this.modalContent).toBeVisible({ timeout: 10000 });
+    await expect(this.modalTitle).toBeVisible();
+  }
+
+  /**
+   * 個人モードの表示を確認
+   */
+  async expectPersonalMode() {
+    // 「/月」のみ（「/シート/月」ではない）
     await expect(
-      this.page.locator("h2").filter({ hasText: "プランをアップグレード" }),
+      this.page.locator('[role="dialog"]').getByText("/月", { exact: true }),
+    ).toBeVisible({ timeout: 5000 });
+    // 個人事業主向けプラン
+    await expect(
+      this.page.locator('[role="dialog"]').getByText("個人事業主向けプラン"),
+    ).toBeVisible();
+    // 個人プランを始めるボタン
+    await expect(
+      this.page.getByRole("button", { name: "個人プランを始める" }),
     ).toBeVisible();
   }
 
   /**
-   * 未契約状態であることを確認
+   * チームモードの表示を確認
+   */
+  async expectTeamMode() {
+    // 「/シート/月」の表示
+    await expect(
+      this.page.locator('[role="dialog"]').getByText("/シート/月"),
+    ).toBeVisible({ timeout: 5000 });
+    // チームプランを始めるボタン
+    await expect(
+      this.page.getByRole("button", { name: "チームプランを始める" }),
+    ).toBeVisible();
+  }
+
+  /**
+   * 未契約状態で購読ボタンが有効であることを確認
    */
   async expectNotSubscribed() {
-    // 「今すぐ始める」ボタンが表示されている
-    await expect(this.subscribeButton).toBeVisible({ timeout: 10000 });
+    const subscribeButton = this.page
+      .locator('[role="dialog"] button')
+      .filter({
+        hasText: /個人プランを始める|チームプランを始める|今すぐ始める/,
+      });
+    await expect(subscribeButton).toBeVisible({ timeout: 10000 });
+    await expect(subscribeButton).toBeEnabled();
   }
 
   /**
    * 契約中状態であることを確認
    */
   async expectSubscribed() {
-    // 「契約中」ボタンが表示されている
-    await expect(this.manageButton).toBeVisible({ timeout: 10000 });
+    await expect(
+      this.page.getByRole("button", { name: "契約中" }),
+    ).toBeVisible({ timeout: 10000 });
+  }
+
+  /**
+   * メンバー権限でボタンがグレーアウトされていることを確認
+   */
+  async expectMemberRestricted() {
+    // 警告メッセージが表示されている
+    await expect(
+      this.page.getByText(
+        "サブスクリプションの管理は管理者またはオーナーのみが行えます",
+      ),
+    ).toBeVisible({ timeout: 10000 });
+
+    // ボタンが「管理者に連絡してください」で無効化されている
+    const adminContactButton = this.page.getByRole("button", {
+      name: "管理者に連絡してください",
+    });
+    await expect(adminContactButton).toBeVisible();
+    await expect(adminContactButton).toBeDisabled();
   }
 
   /**
    * Businessプランの詳細が表示されていることを確認
    */
   async expectBusinessPlanDisplayed() {
-    // プラン名
     await expect(this.planName).toBeVisible({ timeout: 10000 });
-    // 価格
     await expect(this.planPrice).toBeVisible();
-    // 特徴リスト
-    await expect(this.page.locator("text=30日間返金保証")).toBeVisible();
+    await expect(
+      this.page.locator('[role="dialog"]').getByText("30日間返金保証"),
+    ).toBeVisible();
   }
 
   /**
    * チェックアウトを開始（Stripeにリダイレクト）
    */
   async startCheckout() {
-    await this.subscribeButton.click();
+    const subscribeButton = this.page
+      .locator('[role="dialog"] button')
+      .filter({
+        hasText: /個人プランを始める|チームプランを始める|今すぐ始める/,
+      });
+    await subscribeButton.click();
   }
 
   /**
    * Stripeチェックアウトページにリダイレクトされることを確認
    */
   async expectRedirectToStripe() {
-    // Stripeのcheckout URLにリダイレクトされるのを待つ
     await this.page.waitForURL(/checkout\.stripe\.com/, { timeout: 30000 });
   }
 
@@ -108,19 +171,5 @@ export class BillingPage {
    */
   async expectRedirectToStripePortal() {
     await this.page.waitForURL(/billing\.stripe\.com/, { timeout: 30000 });
-  }
-
-  /**
-   * 成功後に/chatにリダイレクトされることを確認
-   */
-  async expectCheckoutSuccess() {
-    await expect(this.page).toHaveURL(/\/chat/, { timeout: 10000 });
-  }
-
-  /**
-   * キャンセル後に/chatにリダイレクトされることを確認
-   */
-  async expectCheckoutCanceled() {
-    await expect(this.page).toHaveURL(/\/chat/, { timeout: 10000 });
   }
 }

@@ -1,64 +1,68 @@
-# Subscription テスト一覧
+# サブスクリプション E2E テスト
 
-Stripe 連携のサブスクリプション機能の E2E テストをまとめています。
+## テスト観点
 
-| ファイル                                        | 確認事項                                         | 主なテストケース                                                               |
-| ----------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
-| [subscription.spec.ts](./subscription.md)       | サブスクリプションモーダル表示、チェックアウト開始 | モーダル表示、Businessプラン詳細、Stripeリダイレクト、未ログイン・組織未選択時 |
+### 1. 個人モードでのサブスクリプション (`personal-subscription.spec.ts`)
 
-## テスト実行
+| ケース                                     | 説明                                            |
+| ------------------------------------------ | ----------------------------------------------- |
+| 個人モードでプラン詳細が正しく表示される   | 「/月」表記、「個人事業主向けプラン」の表示確認 |
+| Stripe チェックアウトにリダイレクトされる | 個人プランでの課金フロー完走                    |
+
+### 2. チームモードでのサブスクリプション (`team-subscription.spec.ts`)
+
+| ケース                                             | 説明                                   |
+| -------------------------------------------------- | -------------------------------------- |
+| オーナー権限でプラン詳細が正しく表示される         | 「/シート/月」表記、チームプランの確認 |
+| 管理者権限でプラン詳細が正しく表示される           | 管理者もサブスク管理可能なことを確認   |
+| オーナー権限で Stripe チェックアウトにリダイレクト | 組織単位での課金フロー完走             |
+
+### 3. メンバー権限での制限 (`member-permission.spec.ts`)
+
+| ケース                                         | 説明                                         |
+| ---------------------------------------------- | -------------------------------------------- |
+| メンバー権限ではサブスクボタンがグレーアウト   | 「管理者に連絡してください」の表示確認       |
+| メンバー権限でもプラン詳細は閲覧できる         | 情報閲覧は可能、操作のみ制限されることを確認 |
+
+## 使用するシードデータ
+
+| ロール | メール                 | パスワード          | 組織                |
+| ------ | ---------------------- | ------------------- | ------------------- |
+| owner  | e2e-owner@example.com  | E2eTestPassword123! | E2E Test Team       |
+| admin  | e2e-admin@example.com  | E2eTestPassword123! | E2E Test Team       |
+| member | e2e-member@example.com | E2eTestPassword123! | E2E Test Team       |
+
+## 実行方法
 
 ```bash
-# subscription ディレクトリ全体を実行
-npx playwright test tests/e2e/subscription/
+# 全テスト実行（Chromiumのみ）
+CI=true npx playwright test tests/e2e/subscription --project=chromium --reporter=list
 
-# 特定のファイルのみ実行
-npx playwright test tests/e2e/subscription/subscription.spec.ts
+# 個別ファイル実行
+CI=true npx playwright test tests/e2e/subscription/personal-subscription.spec.ts --project=chromium --reporter=list
+CI=true npx playwright test tests/e2e/subscription/team-subscription.spec.ts --project=chromium --reporter=list
+CI=true npx playwright test tests/e2e/subscription/member-permission.spec.ts --project=chromium --reporter=list
 ```
-
-## 使用するページオブジェクト
-
-| クラス        | 用途                                     |
-| ------------- | ---------------------------------------- |
-| `BillingPage` | サブスクリプションモーダルの操作・検証   |
 
 ## 前提条件
 
-- `STRIPE_SECRET_KEY` / `STRIPE_PRICE_ID_BUSINESS` が設定されていること
-- Stripe テスト環境が設定済みであること
-- 各テストは独立して実行可能（テストごとに新規ユーザー・組織を作成）
-- テスト後は `cleanupTestUser` でクリーンアップを実行
+- Supabase が起動している
+- シードデータが投入済み (`supabase db reset`)
+- Stripe テスト環境が設定済み
+- 環境変数が設定済み:
+  - `STRIPE_SECRET_KEY`
+  - `STRIPE_PRICE_ID_BUSINESS`
 
-## 契約中ユーザーのテスト
+## ファイル構成
 
-契約中ステータスの UI を確認するには、以下のいずれかが必要です:
-
-```bash
-# 1. シードスクリプトでテストデータを作成
-npx tsx scripts/seed-stripe-test-data.ts
-
-# 2. または、DB に直接サブスクリプションレコードを作成
 ```
-
----
-
-## Stripe Checkout UI について
-
-`checkout.stripe.com` の画面操作は自動 E2E の対象外にしています。
-
-**理由:**
-
-- クロスオリジン iframe / UI 変更が多く、Playwright での安定性が低い
-- テストがフレークしやすく、CI の信頼性を下げる
-
-**自動 E2E でカバーする範囲:**
-
-- サブスクリプションモーダルの表示
-- Business プラン表示
-- チェックアウト開始（Stripe へのリダイレクト確認）
-
-**手動確認が必要な範囲:**
-
-- Stripe UI の支払いフロー（カード入力、決済完了）
-- Webhook 連携による DB 更新
-- カスタマーポータルでのサブスクリプション管理
+tests/e2e/subscription/
+├── README.md                        # このファイル
+├── fixtures.ts                      # テスト用フィクスチャ（ログイン、組織切り替え）
+├── personal-subscription.spec.ts    # 個人モードテスト
+├── personal-subscription.md         # 個人モードテスト仕様書
+├── team-subscription.spec.ts        # チームモードテスト（オーナー/管理者）
+├── team-subscription.md             # チームモードテスト仕様書
+├── member-permission.spec.ts        # メンバー権限制限テスト
+└── member-permission.md             # メンバー権限制限テスト仕様書
+```

@@ -20,7 +20,13 @@ async function handleCheckoutImpl(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    const { organizationId, plan } = parsed.data;
+    const { organizationId, plan, isPersonal } = parsed.data;
+
+    // 個人モードの場合、organizationIdにはユーザーIDが入っている
+    // 本人確認を行う
+    if (isPersonal && organizationId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
     const planConfig = PLANS[plan];
     if (!planConfig?.priceId) {
@@ -47,6 +53,7 @@ async function handleCheckoutImpl(req: NextRequest) {
         metadata: {
           organizationId,
           userId: session.user.id,
+          isPersonal: isPersonal ? "true" : "false",
         },
       });
       customerId = customer.id;
@@ -75,6 +82,7 @@ async function handleCheckoutImpl(req: NextRequest) {
       metadata: {
         organizationId,
         plan,
+        isPersonal: isPersonal ? "true" : "false",
       },
     });
 
@@ -82,6 +90,7 @@ async function handleCheckoutImpl(req: NextRequest) {
       name: "api.stripe.checkout",
       userId: session.user.id,
       orgId: organizationId,
+      isPersonal,
     });
 
     return NextResponse.json({ url: checkoutSession.url });
