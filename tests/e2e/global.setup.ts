@@ -4,4 +4,5 @@
 export default async function globalSetup() {
   // BetterAuth doesn't require special global setup for E2E tests
   // Session handling is done per-test via cookie-based auth
+  // Environment variables are loaded in playwright.config.ts via @next/env
 }

@@ -1,11 +1,27 @@
 import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { SignupPage } from "../page-objects/SignupPage";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * E2Eテスト用フィクスチャ
  *
  * テストユーザーの作成・削除など、複数のテストファイルで共有する機能を提供
  */
+
+/**
+ * Supabase Admin クライアント（テスト用）
+ */
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 /**
  * テスト用のユニークなメールアドレスを生成
@@ -141,4 +157,90 @@ export async function openPasswordSettings(page: Page): Promise<void> {
   );
   await passwordButton.waitFor({ state: "visible", timeout: 5000 });
   await passwordButton.click();
+}
+
+/**
+ * 組織を作成する
+ */
+export async function createOrganization(page: Page, name: string): Promise<void> {
+  // サイドバーのドロップダウンを開く
+  const profileTrigger = page.locator('button').filter({ has: page.locator('.font-semibold') }).first();
+  await profileTrigger.waitFor({ state: "visible", timeout: 10000 });
+  await profileTrigger.click();
+
+  // チーム作成ボタンをクリック
+  const createTeamButton = page.locator('text=チームを作成');
+  await createTeamButton.waitFor({ state: "visible", timeout: 5000 });
+  await createTeamButton.click();
+
+  // 組織作成モーダルが表示されるのを待つ
+  await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+  // チーム名を入力
+  await page.getByLabel("チーム名").fill(name);
+
+  // 作成ボタンをクリック
+  await page.getByRole("button", { name: "チームを作成" }).click();
+
+  // 成功を確認（モーダルが閉じる or トーストが表示される）
+  await expect(page.locator('[role="dialog"]').filter({ hasText: "新しいチームを作成" })).not.toBeVisible({ timeout: 10000 });
+}
+
+/**
+ * 組織設定を開く（設定モーダル → 組織タブ）
+ */
+export async function openOrganizationSettings(page: Page): Promise<void> {
+  // サイドバーのドロップダウンを開く
+  const profileTrigger = page.locator('button').filter({ has: page.locator('.font-semibold') }).first();
+  await profileTrigger.waitFor({ state: "visible", timeout: 10000 });
+  await profileTrigger.click();
+
+  // 設定ボタンをクリック（exactマッチ）
+  const settingsButton = page.getByRole("menuitem", { name: "設定", exact: true });
+  await settingsButton.waitFor({ state: "visible", timeout: 5000 });
+  await settingsButton.click();
+
+  // 設定モーダルが表示されるのを待つ
+  const dialog = page.locator('[role="dialog"]');
+  await dialog.waitFor({ state: "visible", timeout: 5000 });
+
+  // モーダル内の組織タブをクリック
+  const orgTab = dialog.getByRole("button", { name: "組織", exact: true });
+  await orgTab.waitFor({ state: "visible", timeout: 5000 });
+  await orgTab.click();
+
+  // 組織タブのコンテンツが表示されるのを待つ
+  await expect(dialog.locator('text=組織情報')).toBeVisible({ timeout: 5000 });
+}
+
+/**
+ * DBから招待情報を取得する
+ */
+export async function getInvitationFromDB(email: string): Promise<string | null> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    console.warn("Supabase admin client not available, skipping DB lookup");
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("invitation")
+      .select("id")
+      .eq("email", email)
+      .eq("status", "pending")
+      .order("createdAt", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      console.warn("Failed to get invitation from DB:", error?.message);
+      return null;
+    }
+
+    return data.id;
+  } catch (err) {
+    console.warn("Error getting invitation from DB:", err);
+    return null;
+  }
 }

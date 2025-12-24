@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import { loadEnvConfig } from "@next/env";
+
+// Load Next.js environment variables (.env, .env.local, etc.)
+loadEnvConfig(process.cwd());
 
 /**
  * Playwright E2E Test Configuration

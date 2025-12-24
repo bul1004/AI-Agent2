@@ -46,6 +46,16 @@ export function useOrganization() {
     []
   );
 
+  const updateOrg = useCallback(
+    async (organizationId: string, data: { name?: string; logo?: string }) => {
+      return organization.update({
+        organizationId,
+        data,
+      });
+    },
+    []
+  );
+
   // Alias for switchOrg with different signature (for compatibility)
   const setActive = useCallback(
     async (params: { organization: string | { id: string } | null }) => {
@@ -123,6 +133,7 @@ export function useOrganization() {
     createOrg,
     switchOrg,
     setActive,
+    updateOrg,
 
     // Member Management
     inviteMember,

@@ -13,6 +13,7 @@ import {
   Link2,
   Layers,
   Sparkles,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SettingsTabKey } from "@/components/profile/settings-modal/types";
@@ -29,6 +30,7 @@ interface SidebarItemProps {
 const iconMap: Record<SettingsTabKey, ReactNode> = {
   account: <User className="h-[18px] w-[18px]" />,
   settings: <Settings className="h-[18px] w-[18px]" />,
+  organization: <Building2 className="h-[18px] w-[18px]" />,
   usage: <Sparkles className="h-[18px] w-[18px]" />,
   recurring: <Calendar className="h-[18px] w-[18px]" />,
   mail: <Mail className="h-[18px] w-[18px]" />,

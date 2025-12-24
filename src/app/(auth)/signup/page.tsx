@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SignupForm } from "@/components/auth/signup-form";
 import Link from "next/link";
 
@@ -10,7 +11,9 @@ export default function SignupPage() {
           無料でアカウントを作成しましょう
         </p>
       </div>
-      <SignupForm />
+      <Suspense fallback={<div className="h-[300px]" />}>
+        <SignupForm />
+      </Suspense>
       <p className="text-center text-sm text-muted-foreground">
         すでにアカウントをお持ちの方は{" "}
         <Link href="/login" className="text-primary hover:underline">

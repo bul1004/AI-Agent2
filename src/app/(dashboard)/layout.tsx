@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/use-auth";
-// import { OrgSwitcher } from "@/components/organization/org-switcher";
+import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +19,9 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   SquarePen,
+  Check,
+  Plus,
+  Building2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,10 +29,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
 import { SettingsModalProvider } from "@/contexts/settings-modal-context";
+import { CreateOrgModal } from "@/components/organization/create-org-modal";
 
 const SettingsModal = dynamic(
   () =>
@@ -53,6 +58,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { organizations, currentOrg, switchOrg } = useOrganization();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -61,6 +67,12 @@ export default function DashboardLayout({
       "account"
     );
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
+
+  const handleSwitchOrg = async (orgId: string | null) => {
+    await switchOrg(orgId);
+    router.refresh();
+  };
 
   const openSettings = (
     tab: import("@/components/profile/settings-modal/types").SettingsTabKey
@@ -197,26 +209,54 @@ export default function DashboardLayout({
                     variant="ghost"
                     className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-3"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
-                      {user?.image ? (
-                        <Image
-                          src={user.image}
-                          alt={user?.name || "User"}
-                          width={32}
-                          height={32}
-                          sizes="32px"
-                          unoptimized
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        user?.name?.charAt(0).toUpperCase() || "U"
-                      )}
-                    </div>
-                    <div className="text-left flex-1 truncate">
-                      <div className="font-semibold text-sm truncate">
-                        {user?.name}
-                      </div>
-                    </div>
+                    {/* Show current org or personal profile */}
+                    {currentOrg ? (
+                      <>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-muted text-muted-foreground text-sm font-medium">
+                          {currentOrg.logo ? (
+                            <Image
+                              src={currentOrg.logo}
+                              alt={currentOrg.name}
+                              width={32}
+                              height={32}
+                              sizes="32px"
+                              unoptimized
+                              className="h-full w-full object-cover rounded-sm"
+                            />
+                          ) : (
+                            currentOrg.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="text-left flex-1 truncate">
+                          <div className="font-semibold text-sm truncate">
+                            {currentOrg.name}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
+                          {user?.image ? (
+                            <Image
+                              src={user.image}
+                              alt={user?.name || "User"}
+                              width={32}
+                              height={32}
+                              sizes="32px"
+                              unoptimized
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            user?.name?.charAt(0).toUpperCase() || "U"
+                          )}
+                        </div>
+                        <div className="text-left flex-1 truncate">
+                          <div className="font-semibold text-sm truncate">
+                            {user?.name}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -224,18 +264,24 @@ export default function DashboardLayout({
                   align="start"
                   className="w-[240px] mb-2"
                 >
+                  {/* Organization Switcher Section */}
+                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                    アカウントを切り替える
+                  </DropdownMenuLabel>
+
+                  {/* Personal Account */}
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-3"
-                    onClick={() => openSettings("account")}
+                    className="gap-2 cursor-pointer py-2.5"
+                    onClick={() => handleSwitchOrg(null)}
                   >
-                    <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-medium overflow-hidden">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-medium overflow-hidden">
                       {user?.image ? (
                         <Image
                           src={user.image}
                           alt={user?.name || "User"}
-                          width={20}
-                          height={20}
-                          sizes="20px"
+                          width={24}
+                          height={24}
+                          sizes="24px"
                           unoptimized
                           className="h-full w-full object-cover"
                         />
@@ -243,22 +289,75 @@ export default function DashboardLayout({
                         user?.name?.charAt(0).toUpperCase() || "U"
                       )}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{user?.name}</span>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="font-medium text-sm truncate">{user?.name}</span>
+                      <span className="text-xs text-muted-foreground">個人</span>
                     </div>
+                    {!currentOrg && <Check className="h-4 w-4 text-primary" />}
                   </DropdownMenuItem>
+
+                  {/* Organization List */}
+                  {organizations.map((org) => (
+                    <DropdownMenuItem
+                      key={org.id}
+                      className="gap-2 cursor-pointer py-2.5"
+                      onClick={() => handleSwitchOrg(org.id)}
+                    >
+                      <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted text-muted-foreground text-[10px] font-medium overflow-hidden">
+                        {org.logo ? (
+                          <Image
+                            src={org.logo}
+                            alt={org.name}
+                            width={24}
+                            height={24}
+                            sizes="24px"
+                            unoptimized
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          org.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="font-medium text-sm truncate">{org.name}</span>
+                        <span className="text-xs text-muted-foreground">チーム</span>
+                      </div>
+                      {currentOrg?.id === org.id && <Check className="h-4 w-4 text-primary" />}
+                    </DropdownMenuItem>
+                  ))}
+
+                  {/* Create Team Button */}
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer py-2.5"
+                    onClick={() => setShowCreateOrgModal(true)}
+                  >
+                    <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted/50">
+                      <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <span className="text-sm">チームを作成</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
 
+                  {/* Menu Items */}
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-3"
+                    className="gap-2 cursor-pointer py-2.5"
+                    onClick={() => openSettings("account")}
+                  >
+                    <Building2 className="h-4 w-4" />
+                    <span>アカウント設定</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer py-2.5"
                     onClick={() => setShowSubscriptionModal(true)}
                   >
                     <Sparkles className="h-4 w-4" />
-                    <span>プランをアップグレードする</span>
+                    <span>プランをアップグレード</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-3"
+                    className="gap-2 cursor-pointer py-2.5"
                     onClick={() => openSettings("settings")}
                   >
                     <Settings className="h-4 w-4" />
@@ -266,7 +365,7 @@ export default function DashboardLayout({
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-3"
+                    className="gap-2 cursor-pointer py-2.5"
                     onClick={() => openSettings("help")}
                   >
                     <HelpCircle className="h-4 w-4" />
@@ -276,7 +375,7 @@ export default function DashboardLayout({
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer py-3"
+                    className="gap-2 cursor-pointer py-2.5"
                     onClick={logout}
                   >
                     <LogOut className="h-4 w-4" />
@@ -319,6 +418,10 @@ export default function DashboardLayout({
             onClose={() => setShowSubscriptionModal(false)}
           />
         )}
+        <CreateOrgModal
+          open={showCreateOrgModal}
+          onOpenChange={setShowCreateOrgModal}
+        />
       </div>
       </SettingsModalProvider>
     </MastraRuntimeProvider>

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import Link from "next/link";
 
@@ -10,7 +11,9 @@ export default function LoginPage() {
           アカウントにログインして続けましょう
         </p>
       </div>
-      <LoginForm />
+      <Suspense fallback={<div className="h-[300px]" />}>
+        <LoginForm />
+      </Suspense>
       <p className="text-center text-sm text-muted-foreground">
         アカウントをお持ちでない方は{" "}
         <Link href="/signup" className="text-primary hover:underline">

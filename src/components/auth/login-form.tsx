@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +20,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo") || "/chat";
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -41,7 +43,7 @@ export function LoginForm() {
       }
 
       toast.success("ログインしました");
-      router.push("/chat");
+      router.push(returnTo);
       router.refresh();
     } catch {
       toast.error("ログインに失敗しました");
@@ -52,7 +54,7 @@ export function LoginForm() {
     try {
       await signIn.social({
         provider,
-        callbackURL: "/chat",
+        callbackURL: returnTo,
       });
     } catch {
       toast.error("ログインに失敗しました");
