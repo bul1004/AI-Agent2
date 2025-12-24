@@ -8,7 +8,6 @@ import {
   getInvitationFromDB,
   cleanupTestEmailData,
 } from "./fixtures";
-import { getTestConfig } from "../test-users";
 
 /**
  * E2Eテスト: メンバー招待機能
@@ -148,16 +147,16 @@ test.describe("メンバー招待", () => {
   });
 
   test("リアルメールアドレスに招待メールを送信できる", async ({ page }) => {
-    const config = getTestConfig();
+    const realEmail = process.env.E2E_REAL_EMAIL;
 
     // E2E_REAL_EMAIL が設定されていない場合はスキップ
-    if (!config.realEmail) {
+    if (!realEmail) {
       test.skip(true, "E2E_REAL_EMAIL が設定されていません");
       return;
     }
 
     // テスト前にリアルメールの招待・メンバーシップをクリーンアップ
-    await cleanupTestEmailData(config.realEmail);
+    await cleanupTestEmailData(realEmail);
 
     // テストユーザーを作成（ログイン済み）
     await createTestUser(page);
@@ -179,7 +178,7 @@ test.describe("メンバー招待", () => {
     await expect(inviteModal).toBeVisible({ timeout: 5000 });
 
     // リアルメールアドレスを入力
-    await page.getByLabel("メールアドレス").fill(config.realEmail);
+    await page.getByLabel("メールアドレス").fill(realEmail);
 
     // 招待を送信
     await page.getByRole("button", { name: "招待を送信" }).click();
@@ -190,7 +189,7 @@ test.describe("メンバー招待", () => {
     ).toBeVisible({ timeout: 10000 });
 
     // DBに招待が作成されたことを確認
-    const invitationId = await getInvitationFromDB(config.realEmail);
+    const invitationId = await getInvitationFromDB(realEmail);
     expect(invitationId).toBeTruthy();
   });
 });
