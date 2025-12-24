@@ -10,7 +10,9 @@
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "seed:e2e": "tsx scripts/seed-e2e.ts",
+    "cleanup:e2e": "tsx scripts/cleanup-e2e.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.88",

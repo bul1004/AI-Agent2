@@ -44,3 +44,9 @@ next-env.d.ts
 
 # Supabase
 supabase/.temp
+
+# Cursor
+.cursor/
+
+# Claude
+.claude/

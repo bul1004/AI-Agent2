@@ -46,18 +46,46 @@ export function InviteModal({ organizationId }: InviteModalProps) {
   });
 
   const handleInvite = async (values: InviteFormValues) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invite-modal.tsx:handleInvite:entry',message:'inviteMember called',data:{organizationId,email:values.email,role:values.role,orgIdType:typeof organizationId},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,D'})}).catch(()=>{});
+    // #endregion
     try {
-      await organization.inviteMember({
+      const result = await organization.inviteMember({
         organizationId,
         email: values.email,
         role: values.role,
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invite-modal.tsx:handleInvite:success',message:'inviteMember succeeded',data:{result:JSON.stringify(result)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,D'})}).catch(()=>{});
+      // #endregion
 
       toast.success(`${values.email} を招待しました`);
       form.reset({ email: "", role: "member" });
       setOpen(false);
-    } catch {
-      toast.error("招待に失敗しました");
+    } catch (error) {
+      // #region agent log
+      console.log("[DEBUG] inviteMember error:", error);
+      console.log("[DEBUG] error type:", typeof error);
+      console.log("[DEBUG] error keys:", error ? Object.keys(error as object) : "null");
+      console.log("[DEBUG] JSON.stringify:", JSON.stringify(error, null, 2));
+      fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invite-modal.tsx:handleInvite:error',message:'inviteMember failed',data:{errorMessage:error instanceof Error ? error.message : String(error),errorName:error instanceof Error ? error.name : 'unknown',fullError:JSON.stringify(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
+      // #endregion
+      
+      // Parse error to show user-friendly message
+      const errorObj = error as { error?: { message?: string; code?: string } };
+      const errorCode = errorObj?.error?.code;
+      const errorMessage = errorObj?.error?.message;
+      
+      console.log("[DEBUG] errorCode:", errorCode);
+      console.log("[DEBUG] errorMessage:", errorMessage);
+      
+      if (errorCode === "USER_ALREADY_INVITED" || errorMessage?.includes("already") || errorMessage?.includes("invitation")) {
+        toast.error("このメールアドレスは既に招待済みです");
+      } else if (errorCode === "USER_IS_ALREADY_A_MEMBER" || errorMessage?.includes("member")) {
+        toast.error("このユーザーは既にメンバーです");
+      } else {
+        toast.error("招待に失敗しました");
+      }
     }
   };
 
