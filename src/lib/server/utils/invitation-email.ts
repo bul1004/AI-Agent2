@@ -39,14 +39,7 @@ async function sendInvitationEmailImpl({
   inviterName,
   inviterEmail,
 }: SendInvitationEmailParams): Promise<{ success: boolean; error?: string }> {
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:sendInvitationEmailImpl:entry',message:'sendInvitationEmailImpl called',data:{emailLen:email.length,invitationIdLen:invitationId.length,organizationName,hasResendKey:!!process.env.RESEND_API_KEY,hasFromEmail:!!process.env.RESEND_FROM_EMAIL},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-flow'})}).catch(()=>{});
-  // #endregion
-  
   if (!process.env.RESEND_API_KEY) {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:no-resend-key',message:'RESEND_API_KEY not configured',data:{emailLen:email.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-config'})}).catch(()=>{});
-    // #endregion
     logger.warn("RESEND_API_KEY is not configured, logging invite instead", {
       name: "auth.invitation.sendEmail",
       args: { toEmailLen: email.length, organizationName },
@@ -88,27 +81,16 @@ async function sendInvitationEmailImpl({
     const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@example.com";
     const resend = getResend();
     if (!resend) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:resend-null',message:'Resend instance is null',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-config'})}).catch(()=>{});
-      // #endregion
       return { success: false, error: "Resend not configured" };
     }
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:before-send',message:'About to send email via Resend',data:{fromEmail,toEmailLen:email.length,subject},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-send'})}).catch(()=>{});
-    // #endregion
-    
-    const { data, error } = await resend.emails.send({
+
+    const { error } = await resend.emails.send({
       from: `${appName} <${fromEmail}>`,
       to: email,
       subject,
       html: htmlContent,
       text: textContent,
     });
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:after-send',message:'Resend API response',data:{hasError:!!error,errorMessage:error?.message,emailId:data?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-send'})}).catch(()=>{});
-    // #endregion
 
     if (error) {
       logger.error("Email send error", {
@@ -126,9 +108,6 @@ async function sendInvitationEmailImpl({
     });
     return { success: true };
   } catch (err) {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invitation-email.ts:catch-error',message:'Exception in email send',data:{errorMessage:err instanceof Error ? err.message : String(err)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'email-error'})}).catch(()=>{});
-    // #endregion
     const message = err instanceof Error ? err.message : "Unknown error";
     logger.error("Email send failed", {
       name: "auth.invitation.sendEmail",

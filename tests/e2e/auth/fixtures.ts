@@ -244,3 +244,93 @@ export async function getInvitationFromDB(email: string): Promise<string | null>
     return null;
   }
 }
+
+/**
+ * 指定メールアドレスの招待レコードを全て削除する
+ * テスト前のクリーンアップ用
+ */
+export async function cleanupInvitationsForEmail(email: string): Promise<number> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    console.warn("Supabase admin client not available, skipping invitation cleanup");
+    return 0;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("invitation")
+      .delete()
+      .eq("email", email)
+      .select("id");
+
+    if (error) {
+      console.warn("Failed to cleanup invitations:", error.message);
+      return 0;
+    }
+
+    const count = data?.length ?? 0;
+    if (count > 0) {
+      console.log(`Cleaned up ${count} invitation(s) for ${email}`);
+    }
+    return count;
+  } catch (err) {
+    console.warn("Error cleaning up invitations:", err);
+    return 0;
+  }
+}
+
+/**
+ * 指定メールアドレスのメンバーシップを削除する
+ * テスト前のクリーンアップ用（組織から退会させる）
+ */
+export async function cleanupMembershipForEmail(email: string): Promise<number> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    console.warn("Supabase admin client not available, skipping membership cleanup");
+    return 0;
+  }
+
+  try {
+    // まずユーザーIDを取得
+    const { data: userData, error: userError } = await supabase
+      .from("user")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (userError || !userData) {
+      return 0;
+    }
+
+    // そのユーザーのメンバーシップを削除（ownerは除く）
+    const { data, error } = await supabase
+      .from("member")
+      .delete()
+      .eq("userId", userData.id)
+      .neq("role", "owner")
+      .select("id");
+
+    if (error) {
+      console.warn("Failed to cleanup memberships:", error.message);
+      return 0;
+    }
+
+    const count = data?.length ?? 0;
+    if (count > 0) {
+      console.log(`Cleaned up ${count} membership(s) for ${email}`);
+    }
+    return count;
+  } catch (err) {
+    console.warn("Error cleaning up memberships:", err);
+    return 0;
+  }
+}
+
+/**
+ * テスト用メールアドレスの招待とメンバーシップをクリーンアップ
+ * テスト前に呼び出すことで、繰り返しテストが可能になる
+ */
+export async function cleanupTestEmailData(email: string): Promise<void> {
+  await cleanupInvitationsForEmail(email);
+  await cleanupMembershipForEmail(email);
+}

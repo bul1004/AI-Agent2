@@ -6,7 +6,9 @@ import {
   openOrganizationSettings,
   createOrganization,
   getInvitationFromDB,
+  cleanupTestEmailData,
 } from "./fixtures";
+import { getTestConfig } from "../test-users";
 
 /**
  * E2Eテスト: メンバー招待機能
@@ -143,5 +145,52 @@ test.describe("メンバー招待", () => {
 
     // チャットページにリダイレクトされることを確認
     await expect(page).toHaveURL("/chat", { timeout: 10000 });
+  });
+
+  test("リアルメールアドレスに招待メールを送信できる", async ({ page }) => {
+    const config = getTestConfig();
+
+    // E2E_REAL_EMAIL が設定されていない場合はスキップ
+    if (!config.realEmail) {
+      test.skip(true, "E2E_REAL_EMAIL が設定されていません");
+      return;
+    }
+
+    // テスト前にリアルメールの招待・メンバーシップをクリーンアップ
+    await cleanupTestEmailData(config.realEmail);
+
+    // テストユーザーを作成（ログイン済み）
+    await createTestUser(page);
+
+    // 組織を作成
+    const orgName = `リアルメールテスト-${Date.now()}`;
+    await createOrganization(page, orgName);
+
+    // 組織設定を開く
+    await openOrganizationSettings(page);
+
+    // 招待ボタンをクリック
+    const inviteButton = page.getByRole("button", { name: "招待" });
+    await inviteButton.waitFor({ state: "visible", timeout: 5000 });
+    await inviteButton.click();
+
+    // 招待モーダルが表示されることを確認
+    const inviteModal = page.getByRole("dialog").filter({ hasText: "チームメンバーを招待" });
+    await expect(inviteModal).toBeVisible({ timeout: 5000 });
+
+    // リアルメールアドレスを入力
+    await page.getByLabel("メールアドレス").fill(config.realEmail);
+
+    // 招待を送信
+    await page.getByRole("button", { name: "招待を送信" }).click();
+
+    // 成功トーストを確認
+    await expect(
+      page.locator('[data-sonner-toast]').filter({ hasText: "招待しました" })
+    ).toBeVisible({ timeout: 10000 });
+
+    // DBに招待が作成されたことを確認
+    const invitationId = await getInvitationFromDB(config.realEmail);
+    expect(invitationId).toBeTruthy();
   });
 });

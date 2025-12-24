@@ -268,9 +268,6 @@ export const auth = betterAuth({
         inviter,
         id,
       }) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/4e9d29cf-39a7-42c2-8ee8-7c2521fe874c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth/server.ts:sendInvitationEmail',message:'sendInvitationEmail hook triggered',data:{emailLen:email.length,orgId:org.id,orgName:org.name,inviterId:inviter.id,inviterRole:inviter.role,invitationId:id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B,E'})}).catch(()=>{});
-        // #endregion
         await sendInvitationEmail({
           email,
           invitationId: id,
