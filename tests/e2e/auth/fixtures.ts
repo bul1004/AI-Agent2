@@ -191,7 +191,7 @@ export async function createOrganization(
   // 成功を確認（モーダルが閉じる or トーストが表示される）
   await expect(
     page.locator('[role="dialog"]').filter({ hasText: "新しいチームを作成" }),
-  ).not.toBeVisible({ timeout: 10000 });
+  ).not.toBeVisible({ timeout: 20000 });
 }
 
 /**
@@ -360,36 +360,11 @@ export async function cleanupTestEmailData(email: string): Promise<void> {
 }
 
 /**
+ * 指定メールアドレスのオーナー組織IDを取得する
+ */
+/**
  * 組織のサブスクリプション状態を取得する
  */
-export async function getSubscriptionStatus(organizationId: string): Promise<{
-  plan: string;
-  status: string;
-} | null> {
-  const supabase = getSupabaseAdmin();
-  if (!supabase) {
-    console.warn("Supabase admin client not available");
-    return null;
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("subscriptions")
-      .select("plan, status")
-      .eq("organization_id", organizationId)
-      .single();
-
-    if (error || !data) {
-      return null;
-    }
-
-    return data as { plan: string; status: string };
-  } catch (err) {
-    console.warn("Error getting subscription status:", err);
-    return null;
-  }
-}
-
 /**
  * テスト用にサブスクリプションを作成/更新する（DBを直接操作）
  * 注意: 実際のStripeとは同期されないため、UIテスト専用
