@@ -2,21 +2,34 @@
 
 import { useState } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useActiveOrganization } from "@/lib/auth/client";
+import { useAuth } from "@/hooks/use-auth";
 import { PLANS } from "@/lib/server/stripe";
 import { Button } from "@/components/ui/button";
-import { Check, Shield } from "lucide-react";
+import { Check, Shield, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export function PricingTable() {
-  const { data: activeOrg } = useActiveOrganization();
-  const { isSubscribed, isLoading } = useSubscription();
+  const { user } = useAuth();
+  const {
+    isSubscribed,
+    isLoading,
+    isPersonalMode,
+    targetOrgId,
+    canManageSubscription,
+  } = useSubscription();
   const [loading, setLoading] = useState(false);
 
   const businessPlan = PLANS.business;
 
+  // 課金対象のIDを決定
+  // - 個人モードの場合: ユーザーID（個人サブスク）
+  // - チームモードの場合: 組織ID（組織サブスク）
+  const billingTargetId = isPersonalMode ? user?.id : targetOrgId;
+  const isReady = !isLoading && !!billingTargetId;
+  const isButtonDisabled = loading || !isReady || !canManageSubscription;
+
   const handleSubscribe = async () => {
-    if (!activeOrg?.id) return;
+    if (!billingTargetId) return;
 
     setLoading(true);
     try {
@@ -24,8 +37,10 @@ export function PricingTable() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          organizationId: activeOrg.id,
+          // 個人モードの場合はユーザーIDを、チームモードの場合は組織IDを送信
+          organizationId: billingTargetId,
           plan: "business",
+          isPersonal: isPersonalMode,
         }),
       });
 
@@ -48,6 +63,15 @@ export function PricingTable() {
     );
   }
 
+  // ボタンのテキストを決定
+  const getButtonText = () => {
+    if (loading) return "処理中...";
+    if (!isReady) return "読み込み中...";
+    if (!canManageSubscription) return "管理者に連絡してください";
+    if (isPersonalMode) return "個人プランを始める";
+    return "チームプランを始める";
+  };
+
   return (
     <div className="mx-auto max-w-md">
       <div className="rounded-lg border-2 border-primary p-8 shadow-lg">
@@ -56,11 +80,13 @@ export function PricingTable() {
           <p className="mt-4 text-4xl font-bold">
             ¥{businessPlan.price.toLocaleString()}
             <span className="text-base font-normal text-muted-foreground">
-              /シート/月
+              {isPersonalMode ? "/月" : "/シート/月"}
             </span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            宅建士1人あたり月額1万円
+            {isPersonalMode
+              ? "個人事業主向けプラン"
+              : "宅建士1人あたり月額1万円"}
           </p>
         </div>
 
@@ -78,6 +104,16 @@ export function PricingTable() {
           30日間返金保証
         </div>
 
+        {/* メンバー権限の場合の注意書き */}
+        {!canManageSubscription && !isLoading && (
+          <div className="mb-4 flex items-start gap-2 rounded-md bg-muted p-3 text-sm text-muted-foreground">
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <span>
+              サブスクリプションの管理は管理者またはオーナーのみが行えます。
+            </span>
+          </div>
+        )}
+
         {isSubscribed ? (
           <Button variant="outline" className="w-full" disabled>
             契約中
@@ -87,9 +123,10 @@ export function PricingTable() {
             className="w-full"
             size="lg"
             onClick={handleSubscribe}
-            disabled={loading}
+            disabled={isButtonDisabled}
+            variant={canManageSubscription ? "default" : "secondary"}
           >
-            {loading ? "処理中..." : "今すぐ始める"}
+            {getButtonText()}
           </Button>
         )}
       </div>
