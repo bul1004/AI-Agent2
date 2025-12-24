@@ -1,11 +1,14 @@
 "use client";
 
 import { Thread } from "@/components/assistant-ui/thread";
+import { ChatModeProvider } from "@/contexts/chat-mode-context";
 
 export const Assistant = () => {
   return (
-    <div className="h-full w-full">
-      <Thread />
-    </div>
+    <ChatModeProvider>
+      <div className="h-full w-full">
+        <Thread />
+      </div>
+    </ChatModeProvider>
   );
 };
