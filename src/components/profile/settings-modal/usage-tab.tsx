@@ -8,7 +8,7 @@ import { UsageMetric } from "@/components/profile/settings-modal/usage-metric";
 
 export function UsageTab() {
   const { plan, planDetails } = useSubscription();
-  const isPaidPlan = plan !== "free";
+  const isPaidPlan = plan !== "none";
 
   return (
     <div>

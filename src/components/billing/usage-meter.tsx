@@ -30,9 +30,9 @@ export function UsageMeter() {
 
   const metrics = [
     {
-      label: "メッセージ",
-      used: usage?.messages_count || 0,
-      limit: limits.messagesPerMonth,
+      label: "トークン使用量",
+      used: usage?.tokens_used || 0,
+      limit: limits.tokensPerMonth,
     },
     {
       label: "ストレージ",

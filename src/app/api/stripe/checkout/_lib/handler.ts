@@ -49,10 +49,11 @@ async function handleCheckoutImpl(req: NextRequest) {
       });
       customerId = customer.id;
 
+      // 初回は未契約状態で作成（checkoutSession完了時にbusinessに更新）
       await supabase.from("subscriptions").upsert({
         organization_id: organizationId,
         stripe_customer_id: customerId,
-        plan: "free",
+        plan: "none",
         status: "active",
       });
     }

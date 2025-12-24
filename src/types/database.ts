@@ -13,7 +13,7 @@ export type MemberRole = "owner" | "admin" | "member";
 export type InviteStatus = "pending" | "accepted" | "expired";
 export type MessageRole = "user" | "assistant" | "system";
 export type SubscriptionStatus = "active" | "canceled" | "past_due" | "trialing" | "unpaid";
-export type PlanType = "free" | "pro" | "enterprise";
+export type PlanType = "none" | "business";
 
 export interface Database {
   public: {

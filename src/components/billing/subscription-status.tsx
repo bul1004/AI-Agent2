@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export function SubscriptionStatus() {
   const { data: activeOrg } = useActiveOrganization();
-  const { subscription, planDetails, isLoading, isActive } = useSubscription();
+  const { subscription, planDetails, isLoading, isSubscribed } = useSubscription();
 
   const handleManageSubscription = async () => {
     if (!activeOrg?.id) return;
@@ -45,33 +45,33 @@ export function SubscriptionStatus() {
     <div className="rounded-lg border p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold">{planDetails.name}プラン</h3>
+          <h3 className="font-semibold">{planDetails.name}</h3>
           <p className="text-sm text-muted-foreground">
             {planDetails.price === 0
-              ? "無料"
-              : `¥${planDetails.price.toLocaleString()}/月`}
+              ? "未契約"
+              : `¥${planDetails.price.toLocaleString()}/シート/月`}
           </p>
         </div>
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            isActive
+            isSubscribed
               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+              : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
           }`}
         >
-          {isActive ? "有効" : subscription?.status || "無効"}
+          {isSubscribed ? "契約中" : "未契約"}
         </span>
       </div>
 
-      {subscription?.current_period_end && (
+      {subscription?.current_period_end && isSubscribed && (
         <p className="mt-2 text-sm text-muted-foreground">
           {subscription.cancel_at_period_end
-            ? `${formatDate(subscription.current_period_end)}に終了予定`
+            ? `${formatDate(subscription.current_period_end)}に契約終了予定`
             : `次回請求日: ${formatDate(subscription.current_period_end)}`}
         </p>
       )}
 
-      {subscription?.plan !== "free" && (
+      {isSubscribed && (
         <Button
           variant="outline"
           className="mt-4"

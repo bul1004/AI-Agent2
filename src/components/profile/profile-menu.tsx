@@ -45,7 +45,7 @@ export function ProfileMenu({
 
   if (!isOpen && !isCreateOrgModalOpen) return null;
 
-  const isPaidPlan = plan !== "free";
+  const isPaidPlan = plan !== "none";
 
   const handleSwitchOrg = async (orgId: string | null) => {
     await switchOrg(orgId);
@@ -259,7 +259,7 @@ export function ProfileMenu({
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-base font-semibold">
-                    {isPaidPlan ? "∞" : planDetails.limits.messagesPerMonth}
+                    {isPaidPlan ? "∞" : "0"}
                   </span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>

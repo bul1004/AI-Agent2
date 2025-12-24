@@ -109,10 +109,11 @@ async function handleStripeWebhookImpl(req: NextRequest) {
 
       if (!customerId) break;
 
+      // サブスクリプション解約 → 未契約状態に戻す
       await supabase
         .from("subscriptions")
         .update({
-          plan: "free",
+          plan: "none",
           status: "canceled",
           stripe_subscription_id: null,
         })

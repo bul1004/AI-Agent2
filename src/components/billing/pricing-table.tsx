@@ -3,25 +3,27 @@
 import { useState } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useActiveOrganization } from "@/lib/auth/client";
-import { PLANS, type PlanType } from "@/lib/server/stripe";
+import { PLANS } from "@/lib/server/stripe";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export function PricingTable() {
   const { data: activeOrg } = useActiveOrganization();
-  const { plan: currentPlan, isLoading } = useSubscription();
-  const [loading, setLoading] = useState<PlanType | null>(null);
+  const { isSubscribed, isLoading } = useSubscription();
+  const [loading, setLoading] = useState(false);
 
-  const handleUpgrade = async (plan: PlanType) => {
-    if (plan === "free" || !activeOrg?.id) return;
+  const businessPlan = PLANS.business;
 
-    setLoading(plan);
+  const handleSubscribe = async () => {
+    if (!activeOrg?.id) return;
+
+    setLoading(true);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizationId: activeOrg.id, plan }),
+        body: JSON.stringify({ organizationId: activeOrg.id, plan: "business" }),
       });
 
       const { url, error } = await res.json();
@@ -31,88 +33,63 @@ export function PricingTable() {
     } catch {
       toast.error("エラーが発生しました");
     } finally {
-      setLoading(null);
+      setLoading(false);
     }
   };
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-64 animate-pulse rounded-lg bg-muted" />
-        ))}
+      <div className="mx-auto max-w-md">
+        <div className="h-96 animate-pulse rounded-lg bg-muted" />
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
-      {(Object.entries(PLANS) as [PlanType, typeof PLANS[PlanType]][]).map(
-        ([key, plan]) => (
-          <div
-            key={key}
-            className={`rounded-lg border p-6 ${
-              currentPlan === key ? "border-primary ring-2 ring-primary" : ""
-            }`}
+    <div className="mx-auto max-w-md">
+      <div className="rounded-lg border-2 border-primary p-8 shadow-lg">
+        <div className="mb-6 text-center">
+          <h3 className="text-2xl font-bold">{businessPlan.name}プラン</h3>
+          <p className="mt-4 text-4xl font-bold">
+            ¥{businessPlan.price.toLocaleString()}
+            <span className="text-base font-normal text-muted-foreground">
+              /シート/月
+            </span>
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            宅建士1人あたり月額1万円
+          </p>
+        </div>
+
+        <ul className="mb-8 space-y-3">
+          {businessPlan.features.map((feature, index) => (
+            <li key={index} className="flex items-start">
+              <Check className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+              <span className="text-sm">{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mb-4 flex items-center justify-center text-sm text-muted-foreground">
+          <Shield className="mr-2 h-4 w-4" />
+          30日間返金保証
+        </div>
+
+        {isSubscribed ? (
+          <Button variant="outline" className="w-full" disabled>
+            契約中
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={handleSubscribe}
+            disabled={loading}
           >
-            <div className="mb-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{plan.name}</h3>
-                {currentPlan === key && (
-                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                    現在のプラン
-                  </span>
-                )}
-              </div>
-              <p className="mt-2 text-2xl font-bold">
-                ¥{plan.price.toLocaleString()}
-                <span className="text-sm font-normal text-muted-foreground">
-                  /月
-                </span>
-              </p>
-            </div>
-
-            <ul className="mb-6 space-y-2 text-sm">
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-green-500" />
-                {plan.limits.messagesPerMonth === -1
-                  ? "無制限メッセージ"
-                  : `${plan.limits.messagesPerMonth.toLocaleString()}メッセージ/月`}
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-green-500" />
-                {plan.limits.membersPerOrg === -1
-                  ? "無制限メンバー"
-                  : `${plan.limits.membersPerOrg}メンバー`}
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-green-500" />
-                {plan.limits.storageGb}GB ストレージ
-              </li>
-            </ul>
-
-            {key !== "free" && currentPlan !== key && (
-              <Button
-                className="w-full"
-                onClick={() => handleUpgrade(key)}
-                disabled={loading !== null}
-              >
-                {loading === key ? "処理中..." : "アップグレード"}
-              </Button>
-            )}
-            {key === "free" && currentPlan === "free" && (
-              <Button variant="outline" className="w-full" disabled>
-                現在のプラン
-              </Button>
-            )}
-            {currentPlan === key && key !== "free" && (
-              <Button variant="outline" className="w-full" disabled>
-                現在のプラン
-              </Button>
-            )}
-          </div>
-        )
-      )}
+            {loading ? "処理中..." : "今すぐ始める"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

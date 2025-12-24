@@ -25,8 +25,9 @@ interface SubscriptionPayload {
   usage: Usage;
 }
 
+// 未契約状態がデフォルト
 const defaultSubscription: Subscription = {
-  plan: "free",
+  plan: "none",
   status: "active",
   current_period_end: null,
   cancel_at_period_end: false,
@@ -84,9 +85,12 @@ export function useSubscription() {
   const subscription = data?.subscription ?? defaultSubscription;
   const usage = data?.usage ?? defaultUsage;
 
-  const limits = subscription ? getPlanLimits(subscription.plan) : getPlanLimits("free");
-  const plan = subscription?.plan || "free";
+  const plan = subscription?.plan || "none";
+  const limits = getPlanLimits(plan);
   const planDetails = PLANS[plan];
+  const isActive = subscription?.status === "active" || subscription?.status === "trialing";
+  // 有料契約中かどうか（businessプランかつアクティブ）
+  const isSubscribed = plan === "business" && isActive;
 
   return {
     subscription,
@@ -95,6 +99,7 @@ export function useSubscription() {
     plan,
     planDetails,
     isLoading,
-    isActive: subscription?.status === "active" || subscription?.status === "trialing",
+    isActive,
+    isSubscribed,
   };
 }

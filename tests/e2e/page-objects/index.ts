@@ -4,3 +4,4 @@
  */
 export { LandingPage } from "./LandingPage";
 export { SignupPage } from "./SignupPage";
+export { BillingPage } from "./BillingPage";

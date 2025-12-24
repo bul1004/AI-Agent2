@@ -24,35 +24,43 @@ export const stripe = process.env.STRIPE_SECRET_KEY
     })
   : (null as unknown as Stripe);
 
+// 単一プラン型サブスクリプション
+// - Businessプランのみ販売（¥9,800/シート/月）
+// - トークン制限なし（フェアユース、異常利用のみ段階制御）
+// - チャット履歴: 6ヶ月保持
+// - 30日返金保証
 export const PLANS = {
-  free: {
-    name: "Free",
+  // 未契約状態（サブスクリプションなし）
+  none: {
+    name: "未契約",
     price: 0,
     priceId: null,
+    features: [],
     limits: {
-      messagesPerMonth: 100,
-      membersPerOrg: 3,
-      storageGb: 1,
+      tokensPerMonth: 0, // 利用不可
+      membersPerOrg: 1,
+      storageGb: 0,
+      chatHistoryMonths: 0,
     },
   },
-  pro: {
-    name: "Pro",
-    price: 2900, // ¥2,900/month
-    priceId: process.env.STRIPE_PRICE_ID_PRO || null,
+  // 有料プラン（これしか売らない）
+  business: {
+    name: "Business",
+    price: 9800, // ¥9,800/シート/月
+    priceId: process.env.STRIPE_PRICE_ID_BUSINESS || null,
+    features: [
+      "REINS PDF OCR・物件理解",
+      "顧客条件とのマッチング",
+      "契約締結時の必要書類洗い出し（都道府県・市区町村対応）",
+      "通常業務で十分な利用量（フェアユース）",
+      "チャット履歴：6ヶ月保持",
+      "30日返金保証",
+    ],
     limits: {
-      messagesPerMonth: 10000,
-      membersPerOrg: 20,
-      storageGb: 50,
-    },
-  },
-  enterprise: {
-    name: "Enterprise",
-    price: 9800, // ¥9,800/month
-    priceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || null,
-    limits: {
-      messagesPerMonth: -1, // Unlimited
-      membersPerOrg: -1, // Unlimited
-      storageGb: 500,
+      tokensPerMonth: -1, // 無制限（フェアユース、内部で異常利用のみ段階制御）
+      membersPerOrg: -1, // 無制限
+      storageGb: 100,
+      chatHistoryMonths: 6,
     },
   },
 } as const;
