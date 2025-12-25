@@ -22,6 +22,7 @@ import {
   Check,
   Plus,
   Building2,
+  ChevronsUpDown,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,10 +32,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
 import { SettingsModalProvider } from "@/contexts/settings-modal-context";
 import { CreateOrgModal } from "@/components/organization/create-org-modal";
+import { useSubscription } from "@/hooks/use-subscription";
 
 const SettingsModal = dynamic(
   () =>
@@ -59,6 +62,7 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const { organizations, currentOrg, switchOrg } = useOrganization();
+  const { planDetails } = useSubscription();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -207,56 +211,57 @@ export default function DashboardLayout({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-3"
+                      className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-2"
                     >
                       {/* Show current org or personal profile */}
                       {currentOrg ? (
                         <>
-                          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-muted text-muted-foreground text-sm font-medium">
+                          <Avatar className="h-9 w-9 rounded-full">
                             {currentOrg.logo ? (
-                              <Image
+                              <AvatarImage
                                 src={currentOrg.logo}
                                 alt={currentOrg.name}
-                                width={32}
-                                height={32}
-                                sizes="32px"
-                                unoptimized
-                                className="h-full w-full object-cover rounded-sm"
                               />
                             ) : (
-                              currentOrg.name.charAt(0).toUpperCase()
+                              <AvatarFallback className="bg-muted text-muted-foreground">
+                                {currentOrg.name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
                             )}
-                          </div>
-                          <div className="text-left flex-1 truncate">
+                          </Avatar>
+                          <div className="text-left flex-1 min-w-0">
                             <div className="font-semibold text-sm truncate">
                               {currentOrg.name}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                              {planDetails.name}
                             </div>
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground text-sm font-medium overflow-hidden">
+                          <Avatar className="h-9 w-9 rounded-full">
                             {user?.image ? (
-                              <Image
+                              <AvatarImage
                                 src={user.image}
                                 alt={user?.name || "User"}
-                                width={32}
-                                height={32}
-                                sizes="32px"
-                                unoptimized
-                                className="h-full w-full object-cover"
                               />
                             ) : (
-                              user?.name?.charAt(0).toUpperCase() || "U"
+                              <AvatarFallback className="bg-primary text-primary-foreground">
+                                {user?.name?.charAt(0).toUpperCase() || "U"}
+                              </AvatarFallback>
                             )}
-                          </div>
-                          <div className="text-left flex-1 truncate">
+                          </Avatar>
+                          <div className="text-left flex-1 min-w-0">
                             <div className="font-semibold text-sm truncate">
                               {user?.name}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                              {planDetails.name}
                             </div>
                           </div>
                         </>
                       )}
+                      <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent

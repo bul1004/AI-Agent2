@@ -32,7 +32,7 @@ export const stripe = process.env.STRIPE_SECRET_KEY
 export const PLANS = {
   // 未契約状態（サブスクリプションなし）
   none: {
-    name: "未契約",
+    name: "フリープラン",
     price: 0,
     priceId: null,
     features: [],
@@ -45,7 +45,7 @@ export const PLANS = {
   },
   // 有料プラン（これしか売らない）
   business: {
-    name: "Business",
+    name: "マックスプラン",
     price: 9800, // ¥9,800/シート/月
     priceId: process.env.STRIPE_PRICE_ID_BUSINESS || null,
     features: [
