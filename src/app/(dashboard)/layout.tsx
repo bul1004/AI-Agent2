@@ -23,6 +23,10 @@ import {
   Plus,
   Building2,
   ChevronsUpDown,
+  Library,
+  FolderPlus,
+  ChevronDown,
+  LayoutGrid,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -72,6 +76,8 @@ export default function DashboardLayout({
     >("account");
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
+  const [isProjectsOpen, setIsProjectsOpen] = useState(true);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(true);
 
   const handleSwitchOrg = async (orgId: string | null) => {
     await switchOrg(orgId);
@@ -113,29 +119,44 @@ export default function DashboardLayout({
           {/* Sidebar */}
           <aside
             className={cn(
-              "flex flex-col border-r bg-muted/30 transition-all duration-300 ease-in-out",
+              "flex flex-col border-r bg-white dark:bg-neutral-950 transition-all duration-300 ease-in-out",
               isCollapsed ? "w-[60px]" : "w-[260px]",
             )}
           >
-            <div className="flex items-center justify-between p-3">
+            <div className="flex items-center justify-between p-4 pb-4">
               <div
                 className={cn(
                   "flex items-center gap-2",
                   isCollapsed && "justify-center w-full",
                 )}
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm">
-                  <Bot className="h-5 w-5" />
+                <div className="flex h-7 w-7 items-center justify-center text-neutral-900 dark:text-neutral-100">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6"
+                  >
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                  </svg>
                 </div>
                 {!isCollapsed && (
-                  <span className="font-semibold text-sm">ChatGPT-like</span>
+                  <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100">
+                    manus
+                  </span>
                 )}
               </div>
               {!isCollapsed && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground"
+                  className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
                   onClick={() => setIsCollapsed(true)}
                 >
                   <PanelLeftClose className="h-5 w-5" />
@@ -143,64 +164,103 @@ export default function DashboardLayout({
               )}
             </div>
 
-            <div className="px-3 space-y-2">
-              {/* New Chat */}
-              {/* New Chat */}
+            <div className="px-3 space-y-0.5">
+              {/* New Task */}
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-2 px-3 transition-colors duration-200",
-                  "hover:bg-neutral-200/80 dark:hover:bg-neutral-800", // Stronger gray hover
+                  "w-full justify-start gap-3 px-3 h-10 text-[14px] font-normal transition-colors duration-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg",
+                  "hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100",
                   isCollapsed ? "justify-center px-0" : "",
                 )}
                 onClick={() => {
-                  // Logic to start new chat
+                  // Logic to start new task
                 }}
               >
-                <SquarePen className="h-4 w-4" />
-                {!isCollapsed && (
-                  <>
-                    <span className="flex-1 text-left">新しいチャット</span>
-                    <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                      <span className="text-[10px]">⇧</span>
-                      <span className="text-[10px]">⌘</span>
-                      <span>O</span>
-                    </div>
-                  </>
-                )}
+                <SquarePen className="h-4.5 w-4.5" />
+                {!isCollapsed && <span className="flex-1 text-left">新しいタスク</span>}
               </Button>
 
               {/* Search */}
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-2 px-3 text-muted-foreground transition-colors duration-200",
-                  "hover:bg-neutral-200/80 dark:hover:bg-neutral-800",
+                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   isCollapsed ? "justify-center px-0" : "",
                 )}
               >
-                <Search className="h-4 w-4" />
-                {!isCollapsed && <span>チャットを検索</span>}
+                <Search className="h-4.5 w-4.5" />
+                {!isCollapsed && <span>検索</span>}
+              </Button>
+
+              {/* Library */}
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                  isCollapsed ? "justify-center px-0" : "",
+                )}
+              >
+                <Library className="h-4.5 w-4.5" />
+                {!isCollapsed && <span>ライブラリ</span>}
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2">
+            <div className="mt-4 px-3">
               {!isCollapsed && (
-                <>
-                  <div className="text-xs font-semibold text-muted-foreground mb-2 px-2">
+                <div className="flex items-center justify-between text-[11px] font-medium text-neutral-400 mb-1 px-3 uppercase tracking-wider">
+                  <span>プロジェクト</span>
+                  <Plus className="h-3.5 w-3.5 cursor-pointer hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" />
+                </div>
+              )}
+              
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                  isCollapsed ? "justify-center px-0" : "",
+                )}
+              >
+                <FolderPlus className="h-4.5 w-4.5" />
+                {!isCollapsed && <span>新しいプロジェクト</span>}
+              </Button>
+            </div>
+
+            <div className="mt-1 flex-1 overflow-y-auto overflow-x-hidden px-3 py-1">
+              {!isCollapsed && (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-between gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                    "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <LayoutGrid className="h-4.5 w-4.5" />
+                    <span>チャット履歴</span>
+                  </div>
+                  <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+                </Button>
+              )}
+              {!isCollapsed && (
+                <div className="mt-2">
+                  <div className="text-[10px] font-bold text-neutral-400 mb-1 px-3 uppercase tracking-wider">
                     今日のチャット
                   </div>
                   <ThreadList />
-                </>
+                </div>
               )}
             </div>
 
-            <div className="border-t p-3">
+            <div className="border-t px-3 py-2">
               {isCollapsed ? (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-full justify-center"
+                  className="h-9 w-full justify-center"
                   onClick={() => setIsCollapsed(false)}
                 >
                   <PanelLeftOpen className="h-5 w-5" />
@@ -211,12 +271,12 @@ export default function DashboardLayout({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start gap-3 px-2 hover:bg-accent h-auto py-2"
+                      className="w-full justify-start gap-3 px-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 h-12 py-1"
                     >
                       {/* Show current org or personal profile */}
                       {currentOrg ? (
                         <>
-                          <Avatar className="h-9 w-9 rounded-full">
+                          <Avatar className="h-8 w-8 rounded-full">
                             {currentOrg.logo ? (
                               <AvatarImage
                                 src={currentOrg.logo}
@@ -229,17 +289,17 @@ export default function DashboardLayout({
                             )}
                           </Avatar>
                           <div className="text-left flex-1 min-w-0">
-                            <div className="font-semibold text-sm truncate">
+                            <div className="font-normal text-[13px] truncate text-neutral-900 dark:text-neutral-100">
                               {currentOrg.name}
                             </div>
-                            <div className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                            <div className="text-[10px] text-neutral-400 font-normal leading-none mt-0.5">
                               {planDetails.name}
                             </div>
                           </div>
                         </>
                       ) : (
                         <>
-                          <Avatar className="h-9 w-9 rounded-full">
+                          <Avatar className="h-8 w-8 rounded-full">
                             {user?.image ? (
                               <AvatarImage
                                 src={user.image}
@@ -252,16 +312,16 @@ export default function DashboardLayout({
                             )}
                           </Avatar>
                           <div className="text-left flex-1 min-w-0">
-                            <div className="font-semibold text-sm truncate">
+                            <div className="font-normal text-[13px] truncate text-neutral-900 dark:text-neutral-100">
                               {user?.name}
                             </div>
-                            <div className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                            <div className="text-[10px] text-neutral-400 font-normal leading-none mt-0.5">
                               {planDetails.name}
                             </div>
                           </div>
                         </>
                       )}
-                      <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <ChevronsUpDown className="h-4 w-4 text-neutral-400 shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -270,7 +330,7 @@ export default function DashboardLayout({
                     className="w-[240px] mb-2"
                   >
                     {/* Organization Switcher Section */}
-                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                    <DropdownMenuLabel className="text-xs text-neutral-400 font-normal">
                       アカウントを切り替える
                     </DropdownMenuLabel>
 
@@ -295,10 +355,10 @@ export default function DashboardLayout({
                         )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="font-medium text-sm truncate">
+                        <span className="font-normal text-sm truncate text-neutral-900 dark:text-neutral-100">
                           {user?.name}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-neutral-400">
                           個人
                         </span>
                       </div>
@@ -330,10 +390,10 @@ export default function DashboardLayout({
                           )}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className="font-medium text-sm truncate">
+                          <span className="font-normal text-sm truncate text-neutral-900 dark:text-neutral-100">
                             {org.name}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-neutral-400">
                             チーム
                           </span>
                         </div>
