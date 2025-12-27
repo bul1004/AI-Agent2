@@ -131,7 +131,7 @@ export async function openAccountSettings(page: Page): Promise<void> {
   await avatarButton.waitFor({ state: "visible", timeout: 10000 });
   await avatarButton.hover();
 
-  // プロフィールメニューからアカウント設定を開く
+  // プロフィールメニューからアカウントを開く
   const accountButton = page.locator('[data-testid="profile-menu-account"]');
   await accountButton.waitFor({ state: "visible", timeout: 5000 });
   await accountButton.click();

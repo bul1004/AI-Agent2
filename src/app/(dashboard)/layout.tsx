@@ -123,10 +123,10 @@ export default function DashboardLayout({
               isCollapsed ? "w-[60px]" : "w-[260px]",
             )}
           >
-            <div className="flex items-center justify-between p-4 pb-4">
+            <div className="flex items-center justify-between p-3 pb-4">
               <div
                 className={cn(
-                  "flex items-center gap-2",
+                  "flex items-center gap-2 px-1",
                   isCollapsed && "justify-center w-full",
                 )}
               >
@@ -148,7 +148,7 @@ export default function DashboardLayout({
                 </div>
                 {!isCollapsed && (
                   <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100">
-                    manus
+                    gibberish
                   </span>
                 )}
               </div>
@@ -164,12 +164,12 @@ export default function DashboardLayout({
               )}
             </div>
 
-            <div className="px-3 space-y-0.5">
+            <div className="px-2 space-y-0.5">
               {/* New Task */}
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 px-3 h-10 text-[14px] font-normal transition-colors duration-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg",
+                  "w-full justify-start gap-3 px-2 h-9 text-[14px] font-normal transition-colors duration-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg",
                   "hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100",
                   isCollapsed ? "justify-center px-0" : "",
                 )}
@@ -177,20 +177,20 @@ export default function DashboardLayout({
                   // Logic to start new task
                 }}
               >
-                <SquarePen className="h-4.5 w-4.5" />
-                {!isCollapsed && <span className="flex-1 text-left">新しいタスク</span>}
+                <SquarePen className="h-4 w-4" />
+                {!isCollapsed && <span className="flex-1 text-left">新規チャット</span>}
               </Button>
 
               {/* Search */}
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                  "w-full justify-start gap-3 px-2 h-7.5 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
                   "hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   isCollapsed ? "justify-center px-0" : "",
                 )}
               >
-                <Search className="h-4.5 w-4.5" />
+                <Search className="h-4 w-4" />
                 {!isCollapsed && <span>検索</span>}
               </Button>
 
@@ -198,64 +198,61 @@ export default function DashboardLayout({
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                  "w-full justify-start gap-3 px-2 h-7.5 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
                   "hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   isCollapsed ? "justify-center px-0" : "",
                 )}
               >
-                <Library className="h-4.5 w-4.5" />
+                <Library className="h-4 w-4" />
                 {!isCollapsed && <span>ライブラリ</span>}
               </Button>
             </div>
 
-            <div className="mt-4 px-3">
+            <div className="mt-4 px-2">
               {!isCollapsed && (
-                <div className="flex items-center justify-between text-[11px] font-medium text-neutral-400 mb-1 px-3 uppercase tracking-wider">
+                <div 
+                  className="flex items-center justify-start gap-1 text-[14px] font-normal text-neutral-400 mb-1 px-2 cursor-pointer group"
+                  onClick={() => setIsProjectsOpen(!isProjectsOpen)}
+                >
                   <span>プロジェクト</span>
-                  <Plus className="h-3.5 w-3.5 cursor-pointer hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" />
+                  <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", !isProjectsOpen && "-rotate-90")} />
                 </div>
               )}
               
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
-                  "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                  isCollapsed ? "justify-center px-0" : "",
-                )}
-              >
-                <FolderPlus className="h-4.5 w-4.5" />
-                {!isCollapsed && <span>新しいプロジェクト</span>}
-              </Button>
-            </div>
-
-            <div className="mt-1 flex-1 overflow-y-auto overflow-x-hidden px-3 py-1">
-              {!isCollapsed && (
+              {(!isCollapsed && isProjectsOpen) && (
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-between gap-3 px-3 h-9 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
+                    "w-full justify-start gap-3 px-2 h-7.5 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
                     "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                    isCollapsed ? "justify-center px-0" : "",
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <LayoutGrid className="h-4.5 w-4.5" />
-                    <span>チャット履歴</span>
-                  </div>
-                  <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+                  <FolderPlus className="h-4 w-4" />
+                  {!isCollapsed && <span>新しいプロジェクト</span>}
                 </Button>
               )}
+            </div>
+
+            <div className="mt-1 flex-1 overflow-y-auto overflow-x-hidden px-2 py-1">
               {!isCollapsed && (
-                <div className="mt-2">
-                  <div className="text-[10px] font-bold text-neutral-400 mb-1 px-3 uppercase tracking-wider">
-                    今日のチャット
-                  </div>
+                <div 
+                  className="flex items-center justify-start gap-1 text-[14px] font-normal text-neutral-400 mb-1 px-2 cursor-pointer group"
+                  onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                >
+                  <span>チャット履歴</span>
+                  <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", !isHistoryOpen && "-rotate-90")} />
+                </div>
+              )}
+              
+              {(!isCollapsed && isHistoryOpen) && (
+                <div className="mt-1">
                   <ThreadList />
                 </div>
               )}
             </div>
 
-            <div className="border-t px-3 py-2">
+            <div className="border-t px-2 py-2">
               {isCollapsed ? (
                 <Button
                   variant="ghost"
@@ -271,7 +268,7 @@ export default function DashboardLayout({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start gap-3 px-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 h-12 py-1"
+                      className="w-full justify-start gap-3 px-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 h-12 py-1"
                     >
                       {/* Show current org or personal profile */}
                       {currentOrg ? (
@@ -422,7 +419,7 @@ export default function DashboardLayout({
                       onClick={() => openSettings("account")}
                     >
                       <Building2 className="h-4 w-4" />
-                      <span>アカウント設定</span>
+                      <span>アカウント</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem

@@ -5,7 +5,7 @@ import { ThreadListItemPrimitive } from "@assistant-ui/react";
 
 export const ThreadListItemTitle: FC = () => {
   return (
-    <p className="text-sm truncate">
+    <p className="text-[14px] truncate">
       <ThreadListItemPrimitive.Title fallback="New Chat" />
     </p>
   );

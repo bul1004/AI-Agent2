@@ -82,7 +82,7 @@ export function SettingsModal({
                   </svg>
                 </div>
                 <span className="font-bold text-[18px] tracking-tight text-foreground">
-                  manus
+                  gibberish
                 </span>
               </div>
 
