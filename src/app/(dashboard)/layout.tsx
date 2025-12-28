@@ -27,6 +27,8 @@ import {
   FolderPlus,
   ChevronDown,
   LayoutGrid,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,6 +44,7 @@ import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
 import { SettingsModalProvider } from "@/contexts/settings-modal-context";
 import { CreateOrgModal } from "@/components/organization/create-org-modal";
 import { useSubscription } from "@/hooks/use-subscription";
+import { ProfileAvatarButton } from "@/components/profile/profile-avatar-button";
 
 const SettingsModal = dynamic(
   () =>
@@ -78,6 +81,7 @@ export default function DashboardLayout({
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSwitchOrg = async (orgId: string | null) => {
     await switchOrg(orgId);
@@ -115,22 +119,33 @@ export default function DashboardLayout({
         onOpenSettings={openSettings}
         onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
       >
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden relative">
+          {/* Mobile Overlay */}
+          {isMobileMenuOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+          )}
+
           {/* Sidebar */}
           <aside
             className={cn(
               "flex flex-col border-r bg-white dark:bg-neutral-950 transition-all duration-300 ease-in-out",
-              isCollapsed ? "w-[60px]" : "w-[260px]",
+              "fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0",
+              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+              isCollapsed ? "lg:w-[60px]" : "lg:w-[260px]",
+              "w-[260px]" // Mobile width
             )}
           >
             <div className="flex items-center justify-between p-3 pb-4">
               <div
                 className={cn(
                   "flex items-center gap-2 px-1",
-                  isCollapsed && "justify-center w-full",
+                  (isCollapsed && !isMobileMenuOpen) && "lg:justify-center lg:w-full",
                 )}
               >
-                <div className="flex h-7 w-7 items-center justify-center text-neutral-900 dark:text-neutral-100">
+                <div className="flex h-7 w-7 items-center justify-center text-neutral-900 dark:text-neutral-100 shrink-0">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -146,22 +161,34 @@ export default function DashboardLayout({
                     <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
                   </svg>
                 </div>
-                {!isCollapsed && (
-                  <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100">
+                {(!isCollapsed || isMobileMenuOpen) && (
+                  <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100 truncate">
                     gibberish
                   </span>
                 )}
               </div>
-              {!isCollapsed && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  onClick={() => setIsCollapsed(true)}
-                >
-                  <PanelLeftClose className="h-5 w-5" />
-                </Button>
-              )}
+              <div className="flex items-center">
+                {(!isCollapsed && !isMobileMenuOpen) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hidden lg:flex"
+                    onClick={() => setIsCollapsed(true)}
+                  >
+                    <PanelLeftClose className="h-5 w-5" />
+                  </Button>
+                )}
+                {isMobileMenuOpen && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-neutral-400 lg:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="px-2 space-y-0.5">
@@ -175,6 +202,7 @@ export default function DashboardLayout({
                 )}
                 onClick={() => {
                   // Logic to start new task
+                  setIsMobileMenuOpen(false);
                 }}
               >
                 <SquarePen className="h-4 w-4" />
@@ -463,20 +491,38 @@ export default function DashboardLayout({
 
           {/* Main content */}
           <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative">
-            {/* If we want the toggle button OUTSIDE when collapsed, we can put it here. But I put a button in the bottom of collapsed sidebar to expand. Or I can put it at top. 
-               Let's stick to the sidebar internal toggle for now as per Image 1. 
-               Wait, in Image 2 (collapsed), there is NO toggle visible. 
-               But I need a way to open it. 
-               I'll add a boolean check if I need to render a toggle in main area. 
-               For now, the collapsed sidebar has a Button at bottom to open? No, that's weird.
-               I'll put the expand button at the top of the collapsed sidebar, replacing the Close button logic? 
-               Actually, let's make the Logo clickable or add the toggle button in the header of collapsed sidebar.
-           */}
-            {isCollapsed && (
-              <div className="absolute top-3 left-3 z-50 md:hidden">
-                {/* Mobile toggle logic if needed, but we are doing desktop sidebar */}
+            {/* Header (Mobile Toggle + Profile) */}
+            <div className="flex items-center justify-between px-4 py-3 shrink-0 relative z-20">
+              <div className="flex items-center">
+                {/* Mobile Menu Toggle */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-neutral-500 lg:hidden"
+                  onClick={() => setIsMobileMenuOpen(true)}
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+
+                {/* Desktop Expand Toggle when collapsed */}
+                {isCollapsed && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hidden lg:flex"
+                    onClick={() => setIsCollapsed(false)}
+                  >
+                    <PanelLeftOpen className="h-5 w-5" />
+                  </Button>
+                )}
               </div>
-            )}
+
+              {/* Profile Icon on the Right */}
+              <div className="flex items-center">
+                <ProfileAvatarButton />
+              </div>
+            </div>
+
             {children}
           </main>
           {isSettingsOpen && (

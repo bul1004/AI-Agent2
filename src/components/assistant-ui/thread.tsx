@@ -2,7 +2,6 @@
 
 import type { FC } from "react";
 import { ThreadPrimitive } from "@assistant-ui/react";
-import { ProfileAvatarButton } from "@/components/profile/profile-avatar-button";
 import { Composer } from "@/components/assistant-ui/thread/composer";
 import { ThreadScrollToBottom } from "@/components/assistant-ui/thread/thread-scroll-to-bottom";
 import { ThreadWelcome } from "@/components/assistant-ui/thread/thread-welcome";
@@ -18,11 +17,7 @@ export const Thread: FC = () => {
         ["--thread-max-width" as string]: "42rem",
       }}
     >
-      <div className="sticky top-0 z-10 flex justify-end items-center gap-2 px-4 py-3 bg-background">
-        <ProfileAvatarButton />
-      </div>
-
-      <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-8">
+      <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-2">
         <ThreadWelcome />
 
         <ThreadPrimitive.Messages
