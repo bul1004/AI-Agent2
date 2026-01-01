@@ -49,9 +49,9 @@ export const ThreadWelcome: FC = () => {
               label="物件を探す"
             />
             <ModeButton
-              mode="document-support"
+              mode="document-comparison"
               icon={<FileText className="size-4" />}
-              label="文書作成支援"
+              label="重要事項説明書の登記情報確認"
             />
           </div>
         </div>

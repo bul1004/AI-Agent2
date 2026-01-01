@@ -23,7 +23,6 @@ import {
   Plus,
   Building2,
   ChevronsUpDown,
-  Library,
   FolderPlus,
   ChevronDown,
   LayoutGrid,
@@ -138,35 +137,60 @@ export default function DashboardLayout({
               "w-[260px]" // Mobile width
             )}
           >
-            <div className="flex items-center justify-between p-3 pb-4">
-              <div
-                className={cn(
-                  "flex items-center gap-2 px-1",
-                  (isCollapsed && !isMobileMenuOpen) && "lg:justify-center lg:w-full",
-                )}
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-neutral-900 dark:text-neutral-100 shrink-0">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-6 w-6"
-                  >
-                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
-                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
-                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
-                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
-                  </svg>
+            <div className={cn(
+              "flex items-center justify-between p-3 pb-4",
+              isCollapsed && !isMobileMenuOpen && "px-1.5"
+            )}>
+              {isCollapsed && !isMobileMenuOpen ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 lg:flex hidden group relative items-center justify-center mx-auto p-0"
+                  onClick={() => setIsCollapsed(false)}
+                >
+                  <div className="group-hover:hidden flex items-center justify-center text-neutral-900 dark:text-neutral-100 shrink-0">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-6"
+                    >
+                      <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                    </svg>
+                  </div>
+                  <PanelLeftOpen className="size-5 hidden group-hover:block text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100" />
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2 px-1">
+                  <div className="flex h-7 w-7 items-center justify-center text-neutral-900 dark:text-neutral-100 shrink-0">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-6 w-6"
+                    >
+                      <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                    </svg>
+                  </div>
+                  {(!isCollapsed || isMobileMenuOpen) && (
+                    <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100 truncate">
+                      gibberish
+                    </span>
+                  )}
                 </div>
-                {(!isCollapsed || isMobileMenuOpen) && (
-                  <span className="font-serif font-bold text-2xl tracking-tight text-neutral-900 dark:text-neutral-100 truncate">
-                    gibberish
-                  </span>
-                )}
-              </div>
+              )}
               <div className="flex items-center">
                 {(!isCollapsed && !isMobileMenuOpen) && (
                   <Button
@@ -221,19 +245,6 @@ export default function DashboardLayout({
                 <Search className="h-4 w-4" />
                 {!isCollapsed && <span>検索</span>}
               </Button>
-
-              {/* Library */}
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start gap-3 px-2 h-7.5 text-[14px] font-normal text-neutral-900 dark:text-neutral-100 transition-colors duration-200",
-                  "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                  isCollapsed ? "justify-center px-0" : "",
-                )}
-              >
-                <Library className="h-4 w-4" />
-                {!isCollapsed && <span>ライブラリ</span>}
-              </Button>
             </div>
 
             <div className="mt-4 px-2">
@@ -281,38 +292,31 @@ export default function DashboardLayout({
             </div>
 
             <div className="border-t px-2 py-2">
-              {isCollapsed ? (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-full justify-center"
-                  onClick={() => setIsCollapsed(false)}
-                >
-                  <PanelLeftOpen className="h-5 w-5" />
-                </Button>
-              ) : (
-                /* Dropped Profile Logic Here for Expanded State, reusing simpler version or full */
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-3 px-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 h-12 py-1"
-                    >
-                      {/* Show current org or personal profile */}
-                      {currentOrg ? (
-                        <>
-                          <Avatar className="h-8 w-8 rounded-full">
-                            {currentOrg.logo ? (
-                              <AvatarImage
-                                src={currentOrg.logo}
-                                alt={currentOrg.name}
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-muted text-muted-foreground">
-                                {currentOrg.name.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start gap-3 px-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 h-12 py-1",
+                      isCollapsed && "justify-center px-0"
+                    )}
+                  >
+                    {/* Show current org or personal profile */}
+                    {currentOrg ? (
+                      <>
+                        <Avatar className="h-8 w-8 rounded-full">
+                          {currentOrg.logo ? (
+                            <AvatarImage
+                              src={currentOrg.logo}
+                              alt={currentOrg.name}
+                            />
+                          ) : (
+                            <AvatarFallback className="bg-muted text-muted-foreground">
+                              {currentOrg.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        {!isCollapsed && (
                           <div className="text-left flex-1 min-w-0">
                             <div className="font-normal text-[13px] truncate text-neutral-900 dark:text-neutral-100">
                               {currentOrg.name}
@@ -321,21 +325,23 @@ export default function DashboardLayout({
                               {planDetails.name}
                             </div>
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          <Avatar className="h-8 w-8 rounded-full">
-                            {user?.image ? (
-                              <AvatarImage
-                                src={user.image}
-                                alt={user?.name || "User"}
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-primary text-primary-foreground">
-                                {user?.name?.charAt(0).toUpperCase() || "U"}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <Avatar className="h-8 w-8 rounded-full">
+                          {user?.image ? (
+                            <AvatarImage
+                              src={user.image}
+                              alt={user?.name || "User"}
+                            />
+                          ) : (
+                            <AvatarFallback className="bg-primary text-primary-foreground">
+                              {user?.name?.charAt(0).toUpperCase() || "U"}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        {!isCollapsed && (
                           <div className="text-left flex-1 min-w-0">
                             <div className="font-normal text-[13px] truncate text-neutral-900 dark:text-neutral-100">
                               {user?.name}
@@ -344,20 +350,18 @@ export default function DashboardLayout({
                               {planDetails.name}
                             </div>
                           </div>
-                        </>
-                      )}
-                      <ChevronsUpDown className="h-4 w-4 text-neutral-400 shrink-0" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    side="top"
-                    align="start"
-                    className="w-[240px] mb-2"
-                  >
-                    {/* Organization Switcher Section */}
-                    <DropdownMenuLabel className="text-xs text-neutral-400 font-normal">
-                      アカウントを切り替える
-                    </DropdownMenuLabel>
+                        )}
+                      </>
+                    )}
+                    {!isCollapsed && <ChevronsUpDown className="h-4 w-4 text-neutral-400 shrink-0" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side={isCollapsed ? "right" : "top"}
+                  align={isCollapsed ? "end" : "start"}
+                  className="w-[240px] mb-2"
+                >
+                  {/* Organization Switcher Section */}
 
                     {/* Personal Account */}
                     <DropdownMenuItem
@@ -481,11 +485,10 @@ export default function DashboardLayout({
                       onClick={logout}
                     >
                       <LogOut className="h-4 w-4" />
-                      <span>ログアウト</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                    <span>ログアウト</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </aside>
 
@@ -503,18 +506,6 @@ export default function DashboardLayout({
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
-
-                {/* Desktop Expand Toggle when collapsed */}
-                {isCollapsed && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hidden lg:flex"
-                    onClick={() => setIsCollapsed(false)}
-                  >
-                    <PanelLeftOpen className="h-5 w-5" />
-                  </Button>
-                )}
               </div>
 
               {/* Profile Icon on the Right */}

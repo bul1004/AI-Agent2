@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type ChatMode = "property-search" | "document-support" | null;
+export type ChatMode = "property-search" | "document-comparison" | null;
 
 interface ChatModeContextValue {
   mode: ChatMode;
@@ -31,8 +31,8 @@ export function ChatModeProvider({ children }: { children: ReactNode }) {
     switch (mode) {
       case "property-search":
         return "物件を探す";
-      case "document-support":
-        return "文書作成支援";
+      case "document-comparison":
+        return "重要事項説明書の登記情報確認";
       default:
         return null;
     }
@@ -42,7 +42,7 @@ export function ChatModeProvider({ children }: { children: ReactNode }) {
     switch (mode) {
       case "property-search":
         return "どのような物件をお探しですか？";
-      case "document-support":
+      case "document-comparison":
         return "どのような文書を作成しますか？";
       default:
         return "タスクを割り当てるか、何でも質問してください";
