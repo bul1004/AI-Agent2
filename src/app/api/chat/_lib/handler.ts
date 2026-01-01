@@ -7,8 +7,10 @@ const logger = createLogger("api.chat");
 async function handleChatRequestImpl(req: Request): Promise<Response> {
   try {
     const { messages } = await req.json();
+    logger.info("Chat request received", { messageCount: messages?.length });
 
     const stream = await assistant.stream(messages);
+    logger.info("Stream created successfully");
 
     const encoder = new TextEncoder();
     const responseStream = new TransformStream();
@@ -16,8 +18,14 @@ async function handleChatRequestImpl(req: Request): Promise<Response> {
 
     (async () => {
       try {
+        logger.info("Starting to read textStream");
         const reader = stream.textStream;
+        let chunkCount = 0;
         for await (const chunk of reader) {
+          chunkCount++;
+          if (chunkCount === 1) {
+            logger.info("First chunk received");
+          }
           try {
             const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk })}\n\n`;
             await writer.write(encoder.encode(formattedChunk));
@@ -26,6 +34,7 @@ async function handleChatRequestImpl(req: Request): Promise<Response> {
           }
         }
 
+        logger.info("Stream completed", { totalChunks: chunkCount });
         try {
           await writer.write(encoder.encode("data: [DONE]\n\n"));
         } catch {

@@ -15,7 +15,6 @@ import {
   Search,
   Sparkles,
   HelpCircle,
-  Bot,
   PanelLeftClose,
   PanelLeftOpen,
   SquarePen,
@@ -25,7 +24,6 @@ import {
   ChevronsUpDown,
   FolderPlus,
   ChevronDown,
-  LayoutGrid,
   Menu,
   X,
 } from "lucide-react";
@@ -35,7 +33,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ThreadList } from "@/components/assistant-ui/thread-list";

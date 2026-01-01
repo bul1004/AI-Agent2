@@ -18,7 +18,7 @@ export default defineConfig({
   globalSetup: "./tests/e2e/global.setup.ts",
 
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -40,8 +40,8 @@ export default defineConfig({
 
   /* Run local dev server before starting the tests */
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: `PORT=${process.env.PORT || 3000} npm run dev`,
+    url: `http://localhost:${process.env.PORT || 3000}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

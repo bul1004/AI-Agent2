@@ -1,7 +1,6 @@
 "use client";
 
 import useSWR from "swr";
-import { createSupabaseBrowserClient } from "@/lib/db/client";
 import {
   useActiveOrganization,
   useListOrganizations,
@@ -45,33 +44,31 @@ const defaultUsage: Usage = {
   storage_bytes: 0,
 };
 
+// APIルート経由でサブスクリプション情報を取得
+// RLS認証の問題を回避するため、サーバーサイドで認証済みユーザーとして取得
 const fetchSubscriptionPayload = async (
   organizationId: string,
   month: string,
 ): Promise<SubscriptionPayload> => {
-  const supabase = createSupabaseBrowserClient();
+  try {
+    const res = await fetch(
+      `/api/subscription?organizationId=${encodeURIComponent(organizationId)}&month=${encodeURIComponent(month)}`
+    );
 
-  const [subscriptionResult, usageResult] = await Promise.all([
-    supabase
-      .from("subscriptions")
-      .select("plan, status, current_period_end, cancel_at_period_end")
-      .eq("organization_id", organizationId)
-      .maybeSingle(),
-    supabase
-      .from("usage")
-      .select("messages_count, tokens_used, files_uploaded, storage_bytes")
-      .eq("organization_id", organizationId)
-      .eq("month", month)
-      .maybeSingle(),
-  ]);
+    if (!res.ok) {
+      console.error("Failed to fetch subscription:", res.status);
+      return { subscription: defaultSubscription, usage: defaultUsage };
+    }
 
-  const subscription = subscriptionResult.data
-    ? (subscriptionResult.data as Subscription)
-    : defaultSubscription;
-
-  const usage = usageResult.data ? (usageResult.data as Usage) : defaultUsage;
-
-  return { subscription, usage };
+    const data = await res.json();
+    return {
+      subscription: data.subscription || defaultSubscription,
+      usage: data.usage || defaultUsage,
+    };
+  } catch (error) {
+    console.error("Error fetching subscription:", error);
+    return { subscription: defaultSubscription, usage: defaultUsage };
+  }
 };
 
 // 組織内での現在のユーザーの権限を取得

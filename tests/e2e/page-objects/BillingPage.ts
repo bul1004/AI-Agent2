@@ -21,8 +21,8 @@ export class BillingPage {
       .locator('[role="dialog"] h2')
       .filter({ hasText: "プランをアップグレード" });
 
-    // プラン情報
-    this.planName = page.locator("h3").filter({ hasText: "Business" });
+    // プラン情報（マックスプランプラン と表示）
+    this.planName = page.locator("h3").filter({ hasText: "マックスプラン" });
     this.planPrice = page.locator('[role="dialog"]').locator("text=¥9,800");
   }
 

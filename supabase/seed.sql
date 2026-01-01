@@ -1,8 +1,78 @@
 -- seed.sql
 -- Database seed data for E2E testing
+-- INSERT順序: organization → user → account → member → invitation → session
+-- (user.lastActiveOrganizationId が organization を参照するため、organization を先に作成)
+
 BEGIN;
+
 -- ========================================
--- ACCOUNTS
+-- ORGANIZATIONS (最初に作成 - userから参照される)
+-- ========================================
+INSERT INTO "public"."organization" (
+    "id",
+    "name",
+    "slug",
+    "logo",
+    "metadata",
+    "createdAt",
+    "updatedAt"
+  )
+VALUES (
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    'E2E Test Team',
+    'e2e-test-team',
+    null,
+    null,
+    '2025-12-24 11:30:46.922+00',
+    '2025-12-24 11:30:46.889625+00'
+  );
+
+-- ========================================
+-- USERS (organizationの後 - lastActiveOrganizationIdで参照)
+-- ========================================
+INSERT INTO "public"."user" (
+    "id",
+    "name",
+    "email",
+    "emailVerified",
+    "image",
+    "lastActiveOrganizationId",
+    "createdAt",
+    "updatedAt"
+  )
+VALUES (
+    'GnLFtXU7syDdB3ltruVcvulQU0vlpxpU',
+    'E2E Owner',
+    'e2e-owner@example.com',
+    'false',
+    null,
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    '2025-12-24 11:30:45.389+00',
+    '2025-12-24 11:30:45.389+00'
+  ),
+  (
+    'NT11wlM30Tnhnei7joyopJ1rKRUfgBt3',
+    'E2E Admin',
+    'e2e-admin@example.com',
+    'false',
+    null,
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    '2025-12-24 11:30:48.307+00',
+    '2025-12-24 11:30:48.307+00'
+  ),
+  (
+    'TUKuJOSHHdyQeGFSH5Jy4TwbGFJoQMnH',
+    'E2E Member',
+    'e2e-member@example.com',
+    'false',
+    null,
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    '2025-12-24 11:30:54.139+00',
+    '2025-12-24 11:30:54.139+00'
+  );
+
+-- ========================================
+-- ACCOUNTS (userへの参照があるのでuserの後)
 -- ========================================
 INSERT INTO "public"."account" (
     "id",
@@ -64,6 +134,43 @@ VALUES (
     '2025-12-24 11:30:48.384+00',
     '2025-12-24 11:30:48.384+00'
   );
+
+-- ========================================
+-- MEMBERS (userとorganizationへの参照があるので後)
+-- ========================================
+INSERT INTO "public"."member" (
+    "id",
+    "userId",
+    "organizationId",
+    "role",
+    "createdAt",
+    "updatedAt"
+  )
+VALUES (
+    'GZrFxvfHxo3CqJSBMVsMohP2ZhHOBuLV',
+    'GnLFtXU7syDdB3ltruVcvulQU0vlpxpU',
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    'owner',
+    '2025-12-24 11:30:47.038+00',
+    '2025-12-24 11:30:47.005162+00'
+  ),
+  (
+    'MYK4NyFy9cJReV5cAoW9cDu9ZB0lmcca',
+    'TUKuJOSHHdyQeGFSH5Jy4TwbGFJoQMnH',
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    'member',
+    '2025-12-24 11:30:57.357+00',
+    '2025-12-24 11:30:57.324277+00'
+  ),
+  (
+    'RaQEm0BC9cW9qCZ4c3v3DpzsCFpv0Krw',
+    'NT11wlM30Tnhnei7joyopJ1rKRUfgBt3',
+    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
+    'admin',
+    '2025-12-24 11:30:53.328+00',
+    '2025-12-24 11:30:53.296118+00'
+  );
+
 -- ========================================
 -- INVITATIONS
 -- ========================================
@@ -100,80 +207,7 @@ VALUES (
     '2025-12-24 11:30:55.95+00',
     '2025-12-24 11:30:55.91763+00'
   );
--- ========================================
--- MEMBERS
--- ========================================
-INSERT INTO "public"."member" (
-    "id",
-    "userId",
-    "organizationId",
-    "role",
-    "createdAt",
-    "updatedAt"
-  )
-VALUES (
-    'GZrFxvfHxo3CqJSBMVsMohP2ZhHOBuLV',
-    'GnLFtXU7syDdB3ltruVcvulQU0vlpxpU',
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    'owner',
-    '2025-12-24 11:30:47.038+00',
-    '2025-12-24 11:30:47.005162+00'
-  ),
-  (
-    'MYK4NyFy9cJReV5cAoW9cDu9ZB0lmcca',
-    'TUKuJOSHHdyQeGFSH5Jy4TwbGFJoQMnH',
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    'member',
-    '2025-12-24 11:30:57.357+00',
-    '2025-12-24 11:30:57.324277+00'
-  ),
-  (
-    'RaQEm0BC9cW9qCZ4c3v3DpzsCFpv0Krw',
-    'NT11wlM30Tnhnei7joyopJ1rKRUfgBt3',
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    'admin',
-    '2025-12-24 11:30:53.328+00',
-    '2025-12-24 11:30:53.296118+00'
-  );
--- ========================================
--- ORGANIZATIONS
--- ========================================
-INSERT INTO "public"."organization" (
-    "id",
-    "name",
-    "slug",
-    "logo",
-    "metadata",
-    "createdAt",
-    "updatedAt"
-  )
-VALUES (
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    'E2E Organization',
-    'e2e-organization',
-    null,
-    null,
-    '2025-12-24 11:30:45.562+00',
-    '2025-12-24 11:30:45.562+00'
-  );
-INSERT INTO "public"."organization" (
-    "id",
-    "name",
-    "slug",
-    "logo",
-    "metadata",
-    "createdAt",
-    "updatedAt"
-  )
-VALUES (
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    'E2E Test Team',
-    'e2e-test-team',
-    null,
-    null,
-    '2025-12-24 11:30:46.922+00',
-    '2025-12-24 11:30:46.889625+00'
-  );
+
 -- ========================================
 -- SESSIONS
 -- ========================================
@@ -254,46 +288,35 @@ VALUES (
     '2025-12-24 11:30:46.49+00',
     '2025-12-24 11:30:47.637+00'
   );
+
 -- ========================================
--- USERS
+-- SUBSCRIPTIONS (E2Eテスト用 - businessプラン契約済み)
 -- ========================================
-INSERT INTO "public"."user" (
+INSERT INTO "public"."subscriptions" (
     "id",
-    "name",
-    "email",
-    "emailVerified",
-    "image",
-    "lastActiveOrganizationId",
-    "createdAt",
-    "updatedAt"
+    "organization_id",
+    "stripe_customer_id",
+    "stripe_subscription_id",
+    "plan",
+    "status",
+    "current_period_start",
+    "current_period_end",
+    "cancel_at_period_end",
+    "created_at",
+    "updated_at"
   )
 VALUES (
-    'GnLFtXU7syDdB3ltruVcvulQU0vlpxpU',
-    'E2E Owner',
-    'e2e-owner@example.com',
-    'false',
-    null,
+    'seed-sub-R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
     'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    '2025-12-24 11:30:45.389+00',
-    '2025-12-24 11:30:45.389+00'
-  ),
-  (
-    'NT11wlM30Tnhnei7joyopJ1rKRUfgBt3',
-    'E2E Admin',
-    'e2e-admin@example.com',
-    'false',
-    null,
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    '2025-12-24 11:30:48.307+00',
-    '2025-12-24 11:30:48.307+00'
-  ),
-  (
-    'TUKuJOSHHdyQeGFSH5Jy4TwbGFJoQMnH',
-    'E2E Member',
-    'e2e-member@example.com',
-    'false',
-    null,
-    'R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',
-    '2025-12-24 11:30:54.139+00',
-    '2025-12-24 11:30:54.139+00'
+    'cus_seed_e2e_test',
+    'sub_seed_e2e_test',
+    'business',
+    'active',
+    '2025-12-24 00:00:00+00',
+    '2026-01-24 00:00:00+00',
+    false,
+    '2025-12-24 11:30:47.637+00',
+    '2025-12-24 11:30:47.637+00'
   );
+
+COMMIT;
