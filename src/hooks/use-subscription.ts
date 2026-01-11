@@ -13,15 +13,15 @@ import { PLANS, getPlanLimits } from "@/lib/server/stripe";
 interface Subscription {
   plan: PlanType;
   status: SubscriptionStatus;
-  current_period_end: string | null;
-  cancel_at_period_end: boolean;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
 interface Usage {
-  messages_count: number;
-  tokens_used: number;
-  files_uploaded: number;
-  storage_bytes: number;
+  messagesCount: number;
+  tokensUsed: number;
+  filesUploaded: number;
+  storageBytes: number;
 }
 
 interface SubscriptionPayload {
@@ -33,15 +33,15 @@ interface SubscriptionPayload {
 const defaultSubscription: Subscription = {
   plan: "none",
   status: "active",
-  current_period_end: null,
-  cancel_at_period_end: false,
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
 };
 
 const defaultUsage: Usage = {
-  messages_count: 0,
-  tokens_used: 0,
-  files_uploaded: 0,
-  storage_bytes: 0,
+  messagesCount: 0,
+  tokensUsed: 0,
+  filesUploaded: 0,
+  storageBytes: 0,
 };
 
 // APIルート経由でサブスクリプション情報を取得

@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { auth } from "@/lib/auth/server";
 import { uploadToR2, getR2Key } from "@/lib/server/cloudflare/r2";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { createSupabaseAccessToken } from "@/lib/auth/supabase-token";
 import { createLogger, serializeError } from "@/lib/server/logging/logger";
 import { withLog } from "@/lib/server/logging/logwrap";
 import { parsePdfUploadFormData } from "@/app/api/upload/pdf/_lib/validation";
@@ -13,6 +14,18 @@ async function handlePdfUploadImpl(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: req.headers });
     if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    let supabaseToken: string | null = null;
+    try {
+      supabaseToken = await createSupabaseAccessToken(session);
+    } catch (error) {
+      logger.error("Failed to create Supabase token", {
+        name: "api.upload.pdf.token",
+        err: serializeError(error),
+      });
+    }
+    if (!supabaseToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -30,15 +43,15 @@ async function handlePdfUploadImpl(req: NextRequest) {
 
     const url = await uploadToR2(key, buffer, "application/pdf");
 
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient(supabaseToken);
     const { data: document, error } = await supabase
       .from("documents")
       .insert({
-        organization_id: organizationId,
+        organizationId: organizationId,
         title: file.name,
-        file_url: url,
-        file_type: "pdf",
-        created_by: session.user.id,
+        fileUrl: url,
+        fileType: "pdf",
+        createdBy: session.user.id,
         metadata: {
           originalName: file.name,
           size: file.size,

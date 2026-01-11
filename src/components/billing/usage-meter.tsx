@@ -31,13 +31,13 @@ export function UsageMeter() {
   const metrics = [
     {
       label: "トークン使用量",
-      used: usage?.tokens_used || 0,
+      used: usage?.tokensUsed || 0,
       limit: limits.tokensPerMonth,
     },
     {
       label: "ストレージ",
       used:
-        Math.round(((usage?.storage_bytes || 0) / (1024 * 1024 * 1024)) * 100) /
+        Math.round(((usage?.storageBytes || 0) / (1024 * 1024 * 1024)) * 100) /
         100, // GB
       limit: limits.storageGb,
       unit: "GB",

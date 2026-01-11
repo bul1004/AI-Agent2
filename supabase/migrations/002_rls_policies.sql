@@ -62,7 +62,8 @@ CREATE POLICY session_insert_service ON "session"
 -- organization
 CREATE POLICY organization_select_member ON "organization"
   FOR SELECT USING (
-    EXISTS (
+    organization.id = current_jwt_user()
+    OR EXISTS (
       SELECT 1 FROM member m
       WHERE m."organizationId" = organization.id
         AND m."userId" = current_jwt_user()
@@ -71,7 +72,8 @@ CREATE POLICY organization_select_member ON "organization"
 
 CREATE POLICY organization_update_admin ON "organization"
   FOR UPDATE USING (
-    EXISTS (
+    organization.id = current_jwt_user()
+    OR EXISTS (
       SELECT 1 FROM member m
       WHERE m."organizationId" = organization.id
         AND m."userId" = current_jwt_user()
@@ -81,7 +83,8 @@ CREATE POLICY organization_update_admin ON "organization"
 
 CREATE POLICY organization_delete_admin ON "organization"
   FOR DELETE USING (
-    EXISTS (
+    organization.id = current_jwt_user()
+    OR EXISTS (
       SELECT 1 FROM member m
       WHERE m."organizationId" = organization.id
         AND m."userId" = current_jwt_user()
@@ -90,48 +93,39 @@ CREATE POLICY organization_delete_admin ON "organization"
   );
 
 CREATE POLICY organization_insert_service ON "organization"
-  FOR INSERT WITH CHECK ((SELECT auth.role()) = 'service_role');
+  FOR INSERT WITH CHECK (
+    (SELECT auth.role()) = 'service_role'
+    OR organization.id = current_jwt_user()
+  );
 
 -- member
 CREATE POLICY member_select_member ON member
   FOR SELECT USING (
     "userId" = current_jwt_user()
-    OR EXISTS (
-      SELECT 1 FROM member m2
-      WHERE m2."organizationId" = member."organizationId"
-        AND m2."userId" = current_jwt_user()
-        AND m2.role IN ('owner','admin')
+    OR (
+      "organizationId" = get_current_org_id()
+      AND get_current_org_role() IN ('org:owner','org:admin')
     )
   );
 
 CREATE POLICY member_update_admin ON member
   FOR UPDATE USING (
-    EXISTS (
-      SELECT 1 FROM member m2
-      WHERE m2."organizationId" = member."organizationId"
-        AND m2."userId" = current_jwt_user()
-        AND m2.role IN ('owner','admin')
-    )
+    "organizationId" = get_current_org_id()
+    AND get_current_org_role() IN ('org:owner','org:admin')
   );
 
 CREATE POLICY member_delete_admin ON member
   FOR DELETE USING (
-    EXISTS (
-      SELECT 1 FROM member m2
-      WHERE m2."organizationId" = member."organizationId"
-        AND m2."userId" = current_jwt_user()
-        AND m2.role IN ('owner','admin')
-    )
+    "organizationId" = get_current_org_id()
+    AND get_current_org_role() IN ('org:owner','org:admin')
   );
 
 CREATE POLICY member_insert_admin ON member
   FOR INSERT WITH CHECK (
     (SELECT auth.role()) = 'service_role'
-    OR EXISTS (
-      SELECT 1 FROM member m2
-      WHERE m2."organizationId" = member."organizationId"
-        AND m2."userId" = current_jwt_user()
-        AND m2.role IN ('owner','admin')
+    OR (
+      "organizationId" = get_current_org_id()
+      AND get_current_org_role() IN ('org:owner','org:admin')
     )
   );
 

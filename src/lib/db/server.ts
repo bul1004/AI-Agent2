@@ -3,13 +3,22 @@ import { cookies } from "next/headers";
 
 // Note: Using untyped client for flexibility. For production, run:
 // npx supabase gen types typescript --project-id <project-id> > src/types/database.ts
-export async function createSupabaseServerClient() {
+export async function createSupabaseServerClient(accessToken?: string | null) {
   const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      ...(accessToken
+        ? {
+            global: {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
+          }
+        : {}),
       cookies: {
         getAll() {
           return cookieStore.getAll();

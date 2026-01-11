@@ -40,7 +40,7 @@ export default defineConfig({
 
   /* Run local dev server before starting the tests */
   webServer: {
-    command: `PORT=${process.env.PORT || 3000} npm run dev`,
+    command: `PORT=${process.env.PORT || 3000} npm run dev -- --hostname 127.0.0.1`,
     url: `http://localhost:${process.env.PORT || 3000}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

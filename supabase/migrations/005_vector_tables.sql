@@ -60,13 +60,13 @@ CREATE INDEX idx_embeddings_vector ON embeddings
 -- Vector search function
 CREATE OR REPLACE FUNCTION match_embeddings(
   query_embedding vector(1536),
-  p_organization_id TEXT,
+  p_organizationId TEXT,
   match_count INT DEFAULT 5,
   match_threshold FLOAT DEFAULT 0.7
 )
 RETURNS TABLE (
   id TEXT,
-  document_id TEXT,
+  "documentId" TEXT,
   content TEXT,
   metadata JSONB,
   similarity FLOAT
@@ -84,7 +84,7 @@ BEGIN
     e.metadata,
     1 - (e.embedding <=> query_embedding) AS similarity
   FROM public.embeddings e
-  WHERE e."organizationId" = p_organization_id
+  WHERE e."organizationId" = p_organizationId
     AND 1 - (e.embedding <=> query_embedding) > match_threshold
   ORDER BY e.embedding <=> query_embedding
   LIMIT match_count;

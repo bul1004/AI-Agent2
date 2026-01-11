@@ -64,11 +64,11 @@ export function SubscriptionStatus() {
         </span>
       </div>
 
-      {subscription?.current_period_end && isSubscribed && (
+      {subscription?.currentPeriodEnd && isSubscribed && (
         <p className="mt-2 text-sm text-muted-foreground">
-          {subscription.cancel_at_period_end
-            ? `${formatDate(subscription.current_period_end)}に契約終了予定`
-            : `次回請求日: ${formatDate(subscription.current_period_end)}`}
+          {subscription.cancelAtPeriodEnd
+            ? `${formatDate(subscription.currentPeriodEnd)}に契約終了予定`
+            : `次回請求日: ${formatDate(subscription.currentPeriodEnd)}`}
         </p>
       )}
 

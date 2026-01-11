@@ -54,17 +54,17 @@ async function handleStripeWebhookImpl(req: NextRequest) {
       await supabase
         .from("subscriptions")
         .update({
-          stripe_subscription_id: stripeSub.id,
+          stripeSubscriptionId: stripeSub.id,
           plan,
           status: "active",
-          current_period_start: stripeSub.current_period_start
+          currentPeriodStart: stripeSub.current_period_start
             ? new Date(stripeSub.current_period_start * 1000).toISOString()
             : null,
-          current_period_end: stripeSub.current_period_end
+          currentPeriodEnd: stripeSub.current_period_end
             ? new Date(stripeSub.current_period_end * 1000).toISOString()
             : null,
         })
-        .eq("organization_id", organizationId);
+        .eq("organizationId", organizationId);
 
       logger.info("Checkout session completed", {
         name: "api.stripe.webhook",
@@ -84,15 +84,15 @@ async function handleStripeWebhookImpl(req: NextRequest) {
         .from("subscriptions")
         .update({
           status: stripeSub.status,
-          current_period_start: stripeSub.current_period_start
+          currentPeriodStart: stripeSub.current_period_start
             ? new Date(stripeSub.current_period_start * 1000).toISOString()
             : null,
-          current_period_end: stripeSub.current_period_end
+          currentPeriodEnd: stripeSub.current_period_end
             ? new Date(stripeSub.current_period_end * 1000).toISOString()
             : null,
-          cancel_at_period_end: stripeSub.cancel_at_period_end,
+          cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
         })
-        .eq("stripe_customer_id", customerId);
+        .eq("stripeCustomerId", customerId);
 
       logger.info("Subscription updated", {
         name: "api.stripe.webhook",
@@ -114,9 +114,9 @@ async function handleStripeWebhookImpl(req: NextRequest) {
         .update({
           plan: "none",
           status: "canceled",
-          stripe_subscription_id: null,
+          stripeSubscriptionId: null,
         })
-        .eq("stripe_customer_id", customerId);
+        .eq("stripeCustomerId", customerId);
 
       logger.info("Subscription deleted", {
         name: "api.stripe.webhook",

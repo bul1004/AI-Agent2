@@ -1,20 +1,7 @@
 import type { Metadata } from "next";
-import { Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
-
-const notoSerifJP = Noto_Serif_JP({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const notoSansJP = Noto_Sans_JP({
-  variable: "--font-sans-jp",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 export const metadata: Metadata = {
   title: "AI Assistant - AIで仕事を加速",
@@ -30,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${notoSerifJP.variable} ${notoSansJP.variable} antialiased`}>
+      <body className="antialiased">
         <NuqsAdapter>{children}</NuqsAdapter>
         <Toaster richColors position="top-right" />
       </body>

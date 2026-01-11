@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
-import { headers } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/db/server";
+import { createSupabaseAccessToken } from "@/lib/auth/supabase-token";
+import { createLogger, serializeError } from "@/lib/server/logging/logger";
+
+const logger = createLogger("api.subscription");
 
 /**
  * GET /api/subscription
@@ -14,10 +17,23 @@ import { createClient } from "@supabase/supabase-js";
 export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let supabaseToken: string | null = null;
+    try {
+      supabaseToken = await createSupabaseAccessToken(session);
+    } catch (error) {
+      logger.warn("Failed to create Supabase token", {
+        name: "api.subscription.token",
+        err: serializeError(error),
+      });
+    }
+    if (!supabaseToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -32,22 +48,21 @@ export async function GET(request: Request) {
       );
     }
 
-    // サービスロールキーを使用してRLSをバイパス
-    // BetterAuthで認証済みなので、サーバーサイドではサービスロールを使用
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // RLS経由で認可するため、BetterAuthのJWTを付与
+    const supabase = await createSupabaseServerClient(supabaseToken);
 
     // サブスクリプション情報を取得
     const { data: subscription, error: subError } = await supabase
       .from("subscriptions")
-      .select("plan, status, current_period_end, cancel_at_period_end")
-      .eq("organization_id", organizationId)
+      .select("plan, status, currentPeriodEnd, cancelAtPeriodEnd")
+      .eq("organizationId", organizationId)
       .maybeSingle();
 
     if (subError) {
-      console.error("Subscription fetch error:", subError);
+      logger.error("Subscription fetch error", {
+        name: "api.subscription.fetch",
+        err: serializeError(subError),
+      });
       return NextResponse.json(
         { error: "Failed to fetch subscription" },
         { status: 500 }
@@ -57,13 +72,16 @@ export async function GET(request: Request) {
     // 使用量情報を取得
     const { data: usage, error: usageError } = await supabase
       .from("usage")
-      .select("messages_count, tokens_used, files_uploaded, storage_bytes")
-      .eq("organization_id", organizationId)
+      .select("messagesCount, tokensUsed, filesUploaded, storageBytes")
+      .eq("organizationId", organizationId)
       .eq("month", month)
       .maybeSingle();
 
     if (usageError) {
-      console.error("Usage fetch error:", usageError);
+      logger.warn("Usage fetch error", {
+        name: "api.subscription.usage",
+        err: serializeError(usageError),
+      });
       // 使用量のエラーは致命的ではないので続行
     }
 
@@ -71,15 +89,15 @@ export async function GET(request: Request) {
     const defaultSubscription = {
       plan: "none" as const,
       status: "active" as const,
-      current_period_end: null,
-      cancel_at_period_end: false,
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
     };
 
     const defaultUsage = {
-      messages_count: 0,
-      tokens_used: 0,
-      files_uploaded: 0,
-      storage_bytes: 0,
+      messagesCount: 0,
+      tokensUsed: 0,
+      filesUploaded: 0,
+      storageBytes: 0,
     };
 
     return NextResponse.json({
@@ -87,7 +105,10 @@ export async function GET(request: Request) {
       usage: usage || defaultUsage,
     });
   } catch (error) {
-    console.error("Subscription API error:", error);
+    logger.error("Subscription API error", {
+      name: "api.subscription.unhandled",
+      err: serializeError(error),
+    });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/use-auth";
 import { useOrganization } from "@/hooks/use-organization";
+import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -35,8 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ThreadList } from "@/components/assistant-ui/thread-list";
-import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
+import { ChatThreadList } from "@/components/chat/thread-list";
 import { SettingsModalProvider } from "@/contexts/settings-modal-context";
 import { CreateOrgModal } from "@/components/organization/create-org-modal";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -79,6 +79,21 @@ export default function DashboardLayout({
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const handleNewChat = async () => {
+    try {
+      const res = await fetch("/api/chat/threads", { method: "POST" });
+      if (!res.ok) return;
+      const data = (await res.json()) as { threadId?: string };
+      if (data.threadId) {
+        await mutate("/api/chat/threads");
+        router.push(`/chat/${data.threadId}`);
+        setIsMobileMenuOpen(false);
+      }
+    } catch {
+      // Ignore creation failures
+    }
+  };
+
   const handleSwitchOrg = async (orgId: string | null) => {
     await switchOrg(orgId);
     router.refresh();
@@ -110,12 +125,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <MastraRuntimeProvider>
-      <SettingsModalProvider
-        onOpenSettings={openSettings}
-        onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
-      >
-        <div className="flex h-screen overflow-hidden relative">
+    <SettingsModalProvider
+      onOpenSettings={openSettings}
+      onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
+    >
+      <div className="flex h-screen overflow-hidden relative">
           {/* Mobile Overlay */}
           {isMobileMenuOpen && (
             <div
@@ -222,8 +236,7 @@ export default function DashboardLayout({
                   isCollapsed ? "justify-center px-0" : "",
                 )}
                 onClick={() => {
-                  // Logic to start new task
-                  setIsMobileMenuOpen(false);
+                  void handleNewChat();
                 }}
               >
                 <SquarePen className="h-4 w-4" />
@@ -283,7 +296,7 @@ export default function DashboardLayout({
               
               {(!isCollapsed && isHistoryOpen) && (
                 <div className="mt-1">
-                  <ThreadList />
+                  <ChatThreadList onSelect={() => setIsMobileMenuOpen(false)} />
                 </div>
               )}
             </div>
@@ -530,8 +543,7 @@ export default function DashboardLayout({
             open={showCreateOrgModal}
             onOpenChange={setShowCreateOrgModal}
           />
-        </div>
-      </SettingsModalProvider>
-    </MastraRuntimeProvider>
+      </div>
+    </SettingsModalProvider>
   );
 }

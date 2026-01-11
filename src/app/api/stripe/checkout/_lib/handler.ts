@@ -38,14 +38,14 @@ async function handleCheckoutImpl(req: NextRequest) {
 
     const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("organization_id", organizationId)
+      .select("stripeCustomerId")
+      .eq("organizationId", organizationId)
       .single();
 
     const subData = subscription as {
-      stripe_customer_id: string | null;
+      stripeCustomerId: string | null;
     } | null;
-    let customerId = subData?.stripe_customer_id;
+    let customerId = subData?.stripeCustomerId;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -60,8 +60,8 @@ async function handleCheckoutImpl(req: NextRequest) {
 
       // 初回は未契約状態で作成（checkoutSession完了時にbusinessに更新）
       await supabase.from("subscriptions").upsert({
-        organization_id: organizationId,
-        stripe_customer_id: customerId,
+        organizationId: organizationId,
+        stripeCustomerId: customerId,
         plan: "none",
         status: "active",
       });

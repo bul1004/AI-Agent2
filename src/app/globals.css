@@ -9,8 +9,8 @@
     "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
-  --font-display: var(--font-display);
-  --font-sans-jp: var(--font-sans-jp);
+  --font-display: var(--font-sans);
+  --font-sans-jp: var(--font-sans);
 }
 
 :root {

@@ -2,6 +2,13 @@
 
 ## コア原則
 
+### 基本理念
+
+- **技術的負債を積極的に減らす**: 「後で直す」は負債になる。発見した問題はその場で解決し、負債を溜めない
+- **シンプルさは正義**: コードはシンプルであればあるほど良い。複雑さは理解・保守・変更のコストを増大させる。不要なコードは徹底排除。
+- **YAGNI（You Aren't Gonna Need It）**: 今必要ないものは作らない。将来の拡張性より現在のシンプルさを優先
+- **DRY（Don't Repeat Yourself）**: 重複は排除するが、過度な抽象化は避ける
+
 ### 技術スタック
 
 - **Next.js App Router** + **TypeScript** 必須
@@ -123,15 +130,17 @@ components/
 
 ### 2. API Routes の構造
 
-**原則: route.ts は薄く、ロジックは分離**
+**原則: シンプルに始め、必要に応じて分割（YAGNI）**
+
+- **100行以下**: `route.ts` にすべて記述
+- **100行超え**: `_lib/handler.ts` にロジックを分離
+- **複数エンドポイントで共有**: 型・バリデーションを分離
 
 ```
 app/api/{endpoint}/
-├── route.ts              # メイン関数（GET/POST等）のみ（50-100行目安）
-└── _lib/                 # 内部実装（Next.jsルーティング対象外）
-    ├── types.ts          # 型定義
-    ├── validation.ts     # バリデーション
-    └── handler.ts        # ビジネスロジック
+├── route.ts              # メイン関数（小規模ならここに全て）
+└── _lib/                 # 必要になってから作成
+    └── handler.ts        # ビジネスロジック（100行超えたら分離）
 ```
 
 ### 3. lib/ 配下の分類
@@ -170,14 +179,16 @@ app/api/{endpoint}/
 ### 必須ルール
 
 1. **shadcn/ui 最優先**: 必要なUIは必ず shadcn/ui から探す。存在しない場合のみカスタム実装
-2. **1ファイル = 1コンポーネント**: 単一責任の原則を徹底
+2. **1ファイル = 1責務**: 密接に関連する内部コンポーネントは同一ファイルに配置可
 3. **明確なファイル名**: `kebab-case.tsx` で役割を明示
 4. **最小構成**: 必要最小限の機能のみ実装
 
 ### コンポーネント分割例
 
-- ❌ `components/user-dashboard.tsx` に複数コンポーネントを定義
+- ✅ `user-list.tsx` 内に `UserListItem` を定義（外部からは `UserList` のみexport）
 - ✅ `components/profile/user-profile.tsx`、`user-stats.tsx`、`user-activity.tsx` に分割
+- ❌ 無関係なコンポーネントを同一ファイルに配置
+- ❌ `components/user-dashboard.tsx` に複数の責務を持つコンポーネントを定義
 
 ---
 
@@ -198,6 +209,21 @@ app/api/{endpoint}/
 - **useEffect は避ける**: 副作用処理が技術的に必要な場合のみ
 - **楽観的更新**: `mutate(optimisticData, { revalidate: false })` で即座にUI更新
 
+### Server Actions のパターン
+
+```typescript
+// ✅ 推奨: Server Action 内でキャッシュ再検証
+"use server";
+
+export async function createPost(data: FormData) {
+  await db.posts.create(...);
+  revalidatePath("/posts"); // 関連ページを再検証
+}
+```
+
+- **データ変更** → Server Actions + `revalidatePath` / `revalidateTag`
+- **useSWR の `mutate`** → 楽観的更新が必要な場合のみ
+
 ### URL 状態管理
 
 - **nuqs を使用**: URL パラメータの状態管理に統一
@@ -205,9 +231,17 @@ app/api/{endpoint}/
 
 ### グローバル状態管理
 
-- **React Context + useReducer** で最小構成
-- 必要最小限の状態のみグローバル化
+**原則: グローバル状態は最後の手段**
+
+状態管理の優先順位:
+
+1. **サーバー状態** → RSC で直接取得、または useSWR
+2. **URL状態** → nuqs（検索、フィルター、ページネーション等）
+3. **ローカル状態** → useState（コンポーネント内で完結）
+4. **グローバル状態** → React Context（テーマ、認証情報など UI 全体に必要なもののみ）
+
 - `contexts/` ディレクトリに配置
+- ❌ 避けるべき: フォームの入力値、APIレスポンス、一時的なUI状態をグローバルに
 
 ---
 
@@ -231,10 +265,28 @@ app/api/{endpoint}/
 - ❌ Client Component で `useEffect` + `useState` でデータフェッチ
 - ✅ Server Component で直接 `await` でデータ取得
 
+### Client Component への切り替え判断
+
+**Client Component が必要なケース:**
+
+- `useState` / `useEffect` が必要（インタラクティブなUI）
+- ブラウザAPIへのアクセス（`window`, `localStorage`）
+- イベントハンドラ（`onClick`, `onChange`）
+- サードパーティのクライアントライブラリ
+
+**Server Component のまま維持すべきケース:**
+
+- データ表示のみ（フェッチ → レンダリング）
+- 静的なレイアウト・ナビゲーション
+
+**原則: できる限り「葉」のコンポーネントでのみ `use client` を使う**
+
 ### レンダリング最適化
 
 - **Suspense でフォールバック**: 非同期コンポーネントを Suspense でラップ
-- **動的 import**: 重いコンポーネントは `next/dynamic` で遅延読み込み
+- **動的 import**: 計測して問題が判明してから適用（YAGNI）
+  - 適用すべき例: 大きなチャートライブラリ、リッチテキストエディタ
+  - 避けるべき: 「なんとなく重そう」での先行最適化
 - **next/image**: 画像最適化は必ず `next/image` を使用
 - **next/link**: ナビゲーションは必ず `next/link` を使用
 
@@ -242,6 +294,19 @@ app/api/{endpoint}/
 
 - **ルートベースのコード分割**: App Router の自動分割を活用
 - **不要な依存関係を避ける**: バンドルサイズを最小化
+
+### App Router 規約ファイル
+
+シンプルなエラーハンドリング・ローディング表示のために活用:
+
+| ファイル        | 用途                   |
+| --------------- | ---------------------- |
+| `loading.tsx`   | Suspense境界の自動設定 |
+| `error.tsx`     | エラー境界の自動設定   |
+| `not-found.tsx` | 404ページ              |
+
+- ❌ 手動で `<Suspense>` をネストしすぎない
+- ✅ まず `loading.tsx` で対応できるか検討
 
 ---
 

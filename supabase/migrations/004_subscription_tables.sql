@@ -22,37 +22,37 @@ CREATE TYPE plan_type AS ENUM ('none', 'business');
 -- Subscriptions table (one per organization)
 CREATE TABLE IF NOT EXISTS subscriptions (
   id TEXT PRIMARY KEY,
-  organization_id TEXT UNIQUE NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
-  stripe_customer_id TEXT UNIQUE,
-  stripe_subscription_id TEXT UNIQUE,
+  "organizationId" TEXT UNIQUE NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
+  "stripeCustomerId" TEXT UNIQUE,
+  "stripeSubscriptionId" TEXT UNIQUE,
   plan plan_type NOT NULL DEFAULT 'none',
   status subscription_status NOT NULL DEFAULT 'active',
-  current_period_start TIMESTAMPTZ,
-  current_period_end TIMESTAMPTZ,
-  cancel_at_period_end BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  "currentPeriodStart" TIMESTAMPTZ,
+  "currentPeriodEnd" TIMESTAMPTZ,
+  "cancelAtPeriodEnd" BOOLEAN DEFAULT FALSE,
+  "createdAt" TIMESTAMPTZ DEFAULT NOW(),
+  "updatedAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Usage tracking per organization per month
 CREATE TABLE IF NOT EXISTS usage (
   id TEXT PRIMARY KEY,
-  organization_id TEXT NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
+  "organizationId" TEXT NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
   month DATE NOT NULL,  -- First day of month (YYYY-MM-01)
-  messages_count INTEGER DEFAULT 0,
-  tokens_used BIGINT DEFAULT 0,
-  files_uploaded INTEGER DEFAULT 0,
-  storage_bytes BIGINT DEFAULT 0,
-  UNIQUE(organization_id, month)
+  "messagesCount" INTEGER DEFAULT 0,
+  "tokensUsed" BIGINT DEFAULT 0,
+  "filesUploaded" INTEGER DEFAULT 0,
+  "storageBytes" BIGINT DEFAULT 0,
+  UNIQUE("organizationId", month)
 );
 
 -- ========================================
 -- INDEXES
 -- ========================================
 
-CREATE INDEX idx_subscriptions_stripe_customer ON subscriptions(stripe_customer_id);
-CREATE INDEX idx_subscriptions_stripe_sub ON subscriptions(stripe_subscription_id);
-CREATE INDEX idx_usage_org_month ON usage(organization_id, month);
+CREATE INDEX idx_subscriptions_stripe_customer ON subscriptions("stripeCustomerId");
+CREATE INDEX idx_subscriptions_stripe_sub ON subscriptions("stripeSubscriptionId");
+CREATE INDEX idx_usage_org_month ON usage("organizationId", month);
 
 -- ========================================
 -- RLS POLICIES
@@ -66,7 +66,7 @@ CREATE POLICY subscriptions_select ON subscriptions
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM member m
-      WHERE m."organizationId" = subscriptions.organization_id
+      WHERE m."organizationId" = subscriptions."organizationId"
         AND m."userId" = current_jwt_user()
     )
   );
@@ -91,7 +91,7 @@ CREATE POLICY usage_select ON usage
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM member m
-      WHERE m."organizationId" = usage.organization_id
+      WHERE m."organizationId" = usage."organizationId"
         AND m."userId" = current_jwt_user()
     )
   );
@@ -107,26 +107,13 @@ CREATE POLICY usage_update ON usage
   );
 
 -- ========================================
--- TRIGGER FUNCTION (snake_case version)
--- ========================================
-
--- Snake_case版のupdated_at更新関数
-CREATE OR REPLACE FUNCTION update_updated_at_snake_case()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
-
--- ========================================
 -- TRIGGERS
 -- ========================================
 
 CREATE TRIGGER update_subscriptions_updated_at
   BEFORE UPDATE ON subscriptions
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_snake_case();
+  EXECUTE FUNCTION update_updated_at_column();
 
 -- ========================================
 -- FUNCTIONS
@@ -134,7 +121,7 @@ CREATE TRIGGER update_subscriptions_updated_at
 
 -- Function to increment usage
 CREATE OR REPLACE FUNCTION increment_usage(
-  p_organization_id TEXT,
+  p_organizationId TEXT,
   p_messages INTEGER DEFAULT 0,
   p_tokens BIGINT DEFAULT 0,
   p_files INTEGER DEFAULT 0,
@@ -146,21 +133,21 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  INSERT INTO public.usage (id, organization_id, month, messages_count, tokens_used, files_uploaded, storage_bytes)
+  INSERT INTO public.usage ("id", "organizationId", "month", "messagesCount", "tokensUsed", "filesUploaded", "storageBytes")
   VALUES (
     gen_random_uuid()::TEXT,
-    p_organization_id,
+    p_organizationId,
     date_trunc('month', CURRENT_DATE)::DATE,
     p_messages,
     p_tokens,
     p_files,
     p_storage
   )
-  ON CONFLICT (organization_id, month) DO UPDATE SET
-    messages_count = public.usage.messages_count + p_messages,
-    tokens_used = public.usage.tokens_used + p_tokens,
-    files_uploaded = public.usage.files_uploaded + p_files,
-    storage_bytes = public.usage.storage_bytes + p_storage;
+  ON CONFLICT ("organizationId", month) DO UPDATE SET
+    "messagesCount" = public.usage."messagesCount" + p_messages,
+    "tokensUsed" = public.usage."tokensUsed" + p_tokens,
+    "filesUploaded" = public.usage."filesUploaded" + p_files,
+    "storageBytes" = public.usage."storageBytes" + p_storage;
 END;
 $$;
 

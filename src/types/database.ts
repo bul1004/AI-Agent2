@@ -28,24 +28,24 @@ export interface Database {
           id: string;
           email: string;
           name: string | null;
-          avatar_url: string | null;
-          created_at: string;
-          updated_at: string;
+          avatarUrl: string | null;
+          createdAt: string;
+          updatedAt: string;
         };
         Insert: {
           id: string;
           email: string;
           name?: string | null;
-          avatar_url?: string | null;
-          created_at?: string;
-          updated_at?: string;
+          avatarUrl?: string | null;
+          createdAt?: string;
+          updatedAt?: string;
         };
         Update: {
           id?: string;
           email?: string;
           name?: string | null;
-          avatar_url?: string | null;
-          updated_at?: string;
+          avatarUrl?: string | null;
+          updatedAt?: string;
         };
       };
       organizations: {
@@ -53,41 +53,41 @@ export interface Database {
           id: string;
           name: string;
           slug: string;
-          logo_url: string | null;
-          created_by: string;
-          created_at: string;
-          updated_at: string;
+          logoUrl: string | null;
+          createdBy: string;
+          createdAt: string;
+          updatedAt: string;
         };
         Insert: {
           id?: string;
           name: string;
           slug: string;
-          logo_url?: string | null;
-          created_by: string;
-          created_at?: string;
-          updated_at?: string;
+          logoUrl?: string | null;
+          createdBy: string;
+          createdAt?: string;
+          updatedAt?: string;
         };
         Update: {
           name?: string;
           slug?: string;
-          logo_url?: string | null;
-          updated_at?: string;
+          logoUrl?: string | null;
+          updatedAt?: string;
         };
       };
       organization_members: {
         Row: {
           id: string;
-          organization_id: string;
-          user_id: string;
+          organizationId: string;
+          userId: string;
           role: MemberRole;
-          joined_at: string;
+          joinedAt: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
-          user_id: string;
+          organizationId: string;
+          userId: string;
           role?: MemberRole;
-          joined_at?: string;
+          joinedAt?: string;
         };
         Update: {
           role?: MemberRole;
@@ -96,25 +96,25 @@ export interface Database {
       organization_invites: {
         Row: {
           id: string;
-          organization_id: string;
+          organizationId: string;
           email: string;
           role: MemberRole;
           token: string;
           status: InviteStatus;
-          invited_by: string;
-          expires_at: string;
-          created_at: string;
+          invitedBy: string;
+          expiresAt: string;
+          createdAt: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
+          organizationId: string;
           email: string;
           role?: MemberRole;
           token: string;
           status?: InviteStatus;
-          invited_by: string;
-          expires_at: string;
-          created_at?: string;
+          invitedBy: string;
+          expiresAt: string;
+          createdAt?: string;
         };
         Update: {
           status?: InviteStatus;
@@ -123,41 +123,41 @@ export interface Database {
       chat_threads: {
         Row: {
           id: string;
-          organization_id: string;
-          user_id: string;
+          organizationId: string;
+          userId: string;
           title: string | null;
-          created_at: string;
-          updated_at: string;
+          createdAt: string;
+          updatedAt: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
-          user_id: string;
+          organizationId: string;
+          userId: string;
           title?: string | null;
-          created_at?: string;
-          updated_at?: string;
+          createdAt?: string;
+          updatedAt?: string;
         };
         Update: {
           title?: string | null;
-          updated_at?: string;
+          updatedAt?: string;
         };
       };
       chat_messages: {
         Row: {
           id: string;
-          thread_id: string;
+          threadId: string;
           role: MessageRole;
           content: string;
           metadata: Json;
-          created_at: string;
+          createdAt: string;
         };
         Insert: {
           id?: string;
-          thread_id: string;
+          threadId: string;
           role: MessageRole;
           content: string;
           metadata?: Json;
-          created_at?: string;
+          createdAt?: string;
         };
         Update: {
           content?: string;
@@ -167,118 +167,118 @@ export interface Database {
       subscriptions: {
         Row: {
           id: string;
-          organization_id: string;
-          stripe_customer_id: string | null;
-          stripe_subscription_id: string | null;
+          organizationId: string;
+          stripeCustomerId: string | null;
+          stripeSubscriptionId: string | null;
           plan: PlanType;
           status: SubscriptionStatus;
-          current_period_start: string | null;
-          current_period_end: string | null;
-          cancel_at_period_end: boolean;
-          created_at: string;
-          updated_at: string;
+          currentPeriodStart: string | null;
+          currentPeriodEnd: string | null;
+          cancelAtPeriodEnd: boolean;
+          createdAt: string;
+          updatedAt: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
+          organizationId: string;
+          stripeCustomerId?: string | null;
+          stripeSubscriptionId?: string | null;
           plan?: PlanType;
           status?: SubscriptionStatus;
-          current_period_start?: string | null;
-          current_period_end?: string | null;
-          cancel_at_period_end?: boolean;
-          created_at?: string;
-          updated_at?: string;
+          currentPeriodStart?: string | null;
+          currentPeriodEnd?: string | null;
+          cancelAtPeriodEnd?: boolean;
+          createdAt?: string;
+          updatedAt?: string;
         };
         Update: {
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
+          stripeCustomerId?: string | null;
+          stripeSubscriptionId?: string | null;
           plan?: PlanType;
           status?: SubscriptionStatus;
-          current_period_start?: string | null;
-          current_period_end?: string | null;
-          cancel_at_period_end?: boolean;
-          updated_at?: string;
+          currentPeriodStart?: string | null;
+          currentPeriodEnd?: string | null;
+          cancelAtPeriodEnd?: boolean;
+          updatedAt?: string;
         };
       };
       usage: {
         Row: {
           id: string;
-          organization_id: string;
+          organizationId: string;
           month: string;
-          messages_count: number;
-          tokens_used: number;
-          files_uploaded: number;
-          storage_bytes: number;
+          messagesCount: number;
+          tokensUsed: number;
+          filesUploaded: number;
+          storageBytes: number;
         };
         Insert: {
           id?: string;
-          organization_id: string;
+          organizationId: string;
           month: string;
-          messages_count?: number;
-          tokens_used?: number;
-          files_uploaded?: number;
-          storage_bytes?: number;
+          messagesCount?: number;
+          tokensUsed?: number;
+          filesUploaded?: number;
+          storageBytes?: number;
         };
         Update: {
-          messages_count?: number;
-          tokens_used?: number;
-          files_uploaded?: number;
-          storage_bytes?: number;
+          messagesCount?: number;
+          tokensUsed?: number;
+          filesUploaded?: number;
+          storageBytes?: number;
         };
       };
       documents: {
         Row: {
           id: string;
-          organization_id: string;
+          organizationId: string;
           title: string;
           content: string | null;
-          file_url: string | null;
-          file_type: string | null;
+          fileUrl: string | null;
+          fileType: string | null;
           metadata: Json;
-          created_by: string;
-          created_at: string;
-          updated_at: string;
+          createdBy: string;
+          createdAt: string;
+          updatedAt: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
+          organizationId: string;
           title: string;
           content?: string | null;
-          file_url?: string | null;
-          file_type?: string | null;
+          fileUrl?: string | null;
+          fileType?: string | null;
           metadata?: Json;
-          created_by: string;
-          created_at?: string;
-          updated_at?: string;
+          createdBy: string;
+          createdAt?: string;
+          updatedAt?: string;
         };
         Update: {
           title?: string;
           content?: string | null;
-          file_url?: string | null;
+          fileUrl?: string | null;
           metadata?: Json;
-          updated_at?: string;
+          updatedAt?: string;
         };
       };
       embeddings: {
         Row: {
           id: string;
-          document_id: string;
-          organization_id: string;
+          documentId: string;
+          organizationId: string;
           content: string;
           embedding: number[] | null;
           metadata: Json;
-          created_at: string;
+          createdAt: string;
         };
         Insert: {
           id?: string;
-          document_id: string;
-          organization_id: string;
+          documentId: string;
+          organizationId: string;
           content: string;
           embedding?: number[] | null;
           metadata?: Json;
-          created_at?: string;
+          createdAt?: string;
         };
         Update: {
           content?: string;
@@ -291,13 +291,13 @@ export interface Database {
       match_embeddings: {
         Args: {
           query_embedding: number[];
-          p_organization_id: string;
+          p_organizationId: string;
           match_count?: number;
           match_threshold?: number;
         };
         Returns: {
           id: string;
-          document_id: string;
+          documentId: string;
           content: string;
           metadata: Json;
           similarity: number;
@@ -305,7 +305,7 @@ export interface Database {
       };
       increment_usage: {
         Args: {
-          p_organization_id: string;
+          p_organizationId: string;
           p_messages?: number;
           p_tokens?: number;
           p_files?: number;

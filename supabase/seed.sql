@@ -294,16 +294,16 @@ VALUES (
 -- ========================================
 INSERT INTO "public"."subscriptions" (
     "id",
-    "organization_id",
-    "stripe_customer_id",
-    "stripe_subscription_id",
+    "organizationId",
+    "stripeCustomerId",
+    "stripeSubscriptionId",
     "plan",
     "status",
-    "current_period_start",
-    "current_period_end",
-    "cancel_at_period_end",
-    "created_at",
-    "updated_at"
+    "currentPeriodStart",
+    "currentPeriodEnd",
+    "cancelAtPeriodEnd",
+    "createdAt",
+    "updatedAt"
   )
 VALUES (
     'seed-sub-R4sLVjlu6WyiCIc4RpaKMJmmctCXmVxW',

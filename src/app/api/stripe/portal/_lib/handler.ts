@@ -27,15 +27,15 @@ async function handlePortalImpl(req: NextRequest) {
 
     const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("organization_id", organizationId)
+      .select("stripeCustomerId")
+      .eq("organizationId", organizationId)
       .single();
 
     const subData = subscription as {
-      stripe_customer_id: string | null;
+      stripeCustomerId: string | null;
     } | null;
 
-    if (!subData?.stripe_customer_id) {
+    if (!subData?.stripeCustomerId) {
       return NextResponse.json(
         { error: "No subscription found" },
         { status: 400 },
@@ -43,7 +43,7 @@ async function handlePortalImpl(req: NextRequest) {
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: subData.stripe_customer_id,
+      customer: subData.stripeCustomerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/chat`,
     });
 
