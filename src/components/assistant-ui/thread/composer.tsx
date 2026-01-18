@@ -115,6 +115,7 @@ export const Composer: FC = () => {
           <TooltipIconButton
             tooltip={isUploading ? "アップロード中..." : "PDFをアップロード"}
             variant="ghost"
+            type="button"
             onClick={handleUploadClick}
             disabled={isUploading || !currentOrg?.id}
             className="size-8 rounded-full border border-border/60 bg-transparent transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
