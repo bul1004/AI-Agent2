@@ -11,6 +11,7 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { useEffect, useState, useRef } from "react";
 import { useChatMode } from "@/contexts/chat-mode-context";
 import { useOrganization } from "@/hooks/use-organization";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +23,10 @@ export const Composer: FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currentOrg } = useOrganization();
+  const { user } = useAuth();
 
-  // デバッグ用: 組織の状態を確認
-  console.log("currentOrg:", currentOrg);
-  console.log("currentOrg?.id:", currentOrg?.id);
+  // 組織IDを取得（個人モードの場合はユーザーIDを使用）
+  const effectiveOrgId = currentOrg?.id ?? user?.id;
 
   useEffect(() => {
     const unsubscribe = composer.subscribe(() => {
@@ -53,8 +54,8 @@ export const Composer: FC = () => {
       return;
     }
 
-    if (!currentOrg?.id) {
-      toast.error("組織が選択されていません");
+    if (!effectiveOrgId) {
+      toast.error("ログインが必要です");
       return;
     }
 
@@ -63,7 +64,7 @@ export const Composer: FC = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("organizationId", currentOrg.id);
+      formData.append("organizationId", effectiveOrgId);
 
       const response = await fetch("/api/upload/pdf", {
         method: "POST",
@@ -123,7 +124,7 @@ export const Composer: FC = () => {
             variant="ghost"
             type="button"
             onClick={handleUploadClick}
-            disabled={isUploading || !currentOrg?.id}
+            disabled={isUploading || !effectiveOrgId}
             className="size-8 rounded-full border border-border/60 bg-transparent transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
