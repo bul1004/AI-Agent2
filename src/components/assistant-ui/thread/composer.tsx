@@ -72,8 +72,9 @@ export const Composer: FC = () => {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: "アップロードに失敗しました" }));
-        throw new Error(error.error || "アップロードに失敗しました");
+        const errorData = await response.json().catch(() => ({ error: "アップロードに失敗しました" }));
+        console.error("Upload error:", errorData);
+        throw new Error(errorData.details || errorData.error || "アップロードに失敗しました");
       }
 
       const result = await response.json();

@@ -40,18 +40,41 @@ async function handlePdfUploadImpl(req: NextRequest) {
 
     // 個人モードの場合（organizationId === userId）、個人組織を確保
     if (organizationId === session.user.id) {
-      await ensurePersonalOrganizationExists(organizationId, {
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-      });
+      try {
+        await ensurePersonalOrganizationExists(organizationId, {
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+        });
+      } catch (orgError) {
+        logger.error("Failed to ensure personal organization", {
+          name: "api.upload.pdf.org",
+          err: serializeError(orgError),
+        });
+        return NextResponse.json(
+          { error: "Failed to create personal organization", details: String(orgError) },
+          { status: 500 },
+        );
+      }
     }
 
     const fileId = nanoid();
     const key = getR2Key(organizationId, "pdf", `${fileId}.pdf`);
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const url = await uploadToR2(key, buffer, "application/pdf");
+    let url: string;
+    try {
+      url = await uploadToR2(key, buffer, "application/pdf");
+    } catch (r2Error) {
+      logger.error("Failed to upload to R2", {
+        name: "api.upload.pdf.r2",
+        err: serializeError(r2Error),
+      });
+      return NextResponse.json(
+        { error: "Failed to upload file to storage", details: String(r2Error) },
+        { status: 500 },
+      );
+    }
 
     const supabase = await createSupabaseServerClient(supabaseToken);
     const { data: document, error } = await supabase
@@ -72,7 +95,16 @@ async function handlePdfUploadImpl(req: NextRequest) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      logger.error("Failed to insert document", {
+        name: "api.upload.pdf.db",
+        err: serializeError(error),
+      });
+      return NextResponse.json(
+        { error: "Failed to save document to database", details: error.message },
+        { status: 500 },
+      );
+    }
 
     logger.info("PDF uploaded", {
       name: "api.upload.pdf",
