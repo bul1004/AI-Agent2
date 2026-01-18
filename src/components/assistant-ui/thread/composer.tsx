@@ -23,6 +23,10 @@ export const Composer: FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currentOrg } = useOrganization();
 
+  // デバッグ用: 組織の状態を確認
+  console.log("currentOrg:", currentOrg);
+  console.log("currentOrg?.id:", currentOrg?.id);
+
   useEffect(() => {
     const unsubscribe = composer.subscribe(() => {
       setHasText(composer.getState().text.trim().length > 0);
