@@ -11,7 +11,6 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { useEffect, useState, useRef } from "react";
 import { useChatMode } from "@/contexts/chat-mode-context";
 import { useOrganization } from "@/hooks/use-organization";
-import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +22,10 @@ export const Composer: FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currentOrg } = useOrganization();
-  const { user } = useAuth();
 
-  // 組織IDを取得（個人モードの場合はユーザーIDを使用）
-  const effectiveOrgId = currentOrg?.id ?? user?.id;
+  // デバッグ用: 組織の状態を確認
+  console.log("currentOrg:", currentOrg);
+  console.log("currentOrg?.id:", currentOrg?.id);
 
   useEffect(() => {
     const unsubscribe = composer.subscribe(() => {
@@ -54,8 +53,8 @@ export const Composer: FC = () => {
       return;
     }
 
-    if (!effectiveOrgId) {
-      toast.error("ログインが必要です");
+    if (!currentOrg?.id) {
+      toast.error("組織が選択されていません");
       return;
     }
 
@@ -64,7 +63,7 @@ export const Composer: FC = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("organizationId", effectiveOrgId);
+      formData.append("organizationId", currentOrg.id);
 
       const response = await fetch("/api/upload/pdf", {
         method: "POST",
@@ -72,9 +71,8 @@ export const Composer: FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "アップロードに失敗しました" }));
-        console.error("Upload error:", errorData);
-        throw new Error(errorData.details || errorData.error || "アップロードに失敗しました");
+        const error = await response.json().catch(() => ({ error: "アップロードに失敗しました" }));
+        throw new Error(error.error || "アップロードに失敗しました");
       }
 
       const result = await response.json();
@@ -125,7 +123,7 @@ export const Composer: FC = () => {
             variant="ghost"
             type="button"
             onClick={handleUploadClick}
-            disabled={isUploading || !effectiveOrgId}
+            disabled={isUploading || !currentOrg?.id}
             className="size-8 rounded-full border border-border/60 bg-transparent transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (

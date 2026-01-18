@@ -36,9 +36,7 @@ export async function ensurePersonalOrganizationExists(
 
   const name = user.name || user.email || "Personal";
   const admin = createSupabaseAdminClient();
-  
-  // 個人組織を作成
-  const { error: orgError } = await admin.from("organization").upsert(
+  const { error } = await admin.from("organization").upsert(
     {
       id: organizationId,
       name,
@@ -49,23 +47,7 @@ export async function ensurePersonalOrganizationExists(
     { onConflict: "id", ignoreDuplicates: true },
   );
 
-  if (orgError && orgError.code !== "23505") {
-    throw orgError;
-  }
-
-  // メンバーレコードを作成（RLSポリシーのため必要）
-  const { error: memberError } = await admin.from("member").upsert(
-    {
-      id: `${organizationId}_${user.id}`,
-      organizationId: organizationId,
-      userId: user.id,
-      role: "owner",
-      createdAt: new Date().toISOString(),
-    },
-    { onConflict: "id", ignoreDuplicates: true },
-  );
-
-  if (memberError && memberError.code !== "23505") {
-    throw memberError;
+  if (error && error.code !== "23505") {
+    throw error;
   }
 }
