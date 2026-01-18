@@ -7,6 +7,7 @@ import { createSupabaseAccessToken } from "@/lib/auth/supabase-token";
 import { createLogger, serializeError } from "@/lib/server/logging/logger";
 import { withLog } from "@/lib/server/logging/logwrap";
 import { parsePdfUploadFormData } from "@/app/api/upload/pdf/_lib/validation";
+import { ensurePersonalOrganizationExists } from "@/lib/server/chat/ensure-personal-org";
 
 const logger = createLogger("api.upload.pdf");
 
@@ -37,6 +38,15 @@ async function handlePdfUploadImpl(req: NextRequest) {
 
     const { file, organizationId } = parsed.data;
 
+    // 個人モードの場合（organizationId === userId）、個人組織を確保
+    if (organizationId === session.user.id) {
+      await ensurePersonalOrganizationExists(organizationId, {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+      });
+    }
+
     const fileId = nanoid();
     const key = getR2Key(organizationId, "pdf", `${fileId}.pdf`);
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -47,6 +57,7 @@ async function handlePdfUploadImpl(req: NextRequest) {
     const { data: document, error } = await supabase
       .from("documents")
       .insert({
+        id: fileId,
         organizationId: organizationId,
         title: file.name,
         fileUrl: url,
